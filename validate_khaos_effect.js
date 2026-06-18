@@ -1,0 +1,53 @@
+# Khaos Effect — Build atual
+
+Arquivo entregue:
+
+- `outputs/khaos_effect.html`
+
+Preview visual:
+
+- `outputs/khaos_effect_cover.png`
+
+## Implementado nesta etapa
+
+- Novo HTML single-file de trabalho.
+- Dados canonicos embutidos a partir do prototipo antigo:
+  - 20 racas
+  - 13 classes
+  - 39 subclasses
+  - 292 cartas em 18 categorias
+- Fundacao Supabase client-side via UMD CDN.
+- Identidade persistente com `player_key`.
+- Criar sala real em `khaos_rooms`.
+- Entrar em sala por codigo e senha opcional.
+- Reconectar ultima sala salva.
+- Lobby com jogadores em `khaos_players`.
+- Heartbeat de presenca por `last_seen`.
+- Realtime para sala, jogadores e historico.
+- Mestre inicia sessao.
+- Tela de criacao/selecionar personagem.
+- Persistencia em `khaos_characters`.
+- Vinculo do personagem em `khaos_players.character_id`.
+- Contrato inicial de `characters.data` com `schemaVersion`, `macros`, `stats`, `skills`, `inventory` e `notes`.
+- Mesa inicial com ficha ativa, barra de CAOS, D20, macros e historico via `khaos_history`.
+
+## Validado localmente
+
+- Build gerado com dados canonicos intactos.
+- Sintaxe do script principal validada.
+- IDs obrigatorios preservados.
+- `<symbol id="forestArt">` aparece 1x.
+- `<use href="#forestArt">` aparece 5x, uma vez por tela.
+- Captura headless da capa gerada com Edge.
+
+## Nao validado ainda
+
+- Smoke test no Supabase real nao foi executado porque escreveria dados temporarios no backend remoto. Para rodar, Lucas precisa autorizar explicitamente esse efeito externo.
+
+## Proximo incremento recomendado
+
+1. Rodar smoke test real autorizado no Supabase.
+2. Ajustar qualquer diferenca de schema que aparecer.
+3. Portar o chat da mesa.
+4. Portar tokens/mapa basico.
+5. Implementar thresholds de CAOS em 25/50/75/100 usando as cartas narrativas.

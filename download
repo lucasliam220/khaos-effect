@@ -1,0 +1,1743 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>KHAOS EFFECT</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --void: #070510;
+      --ink: #100c1e;
+      --panel: #20142a;
+      --panel-2: #311d35;
+      --line: #0b0712;
+      --bone: #f0e6d2;
+      --muted: #bba98f;
+      --gold: #ffcf4a;
+      --amber: #f38d3a;
+      --green: #6ad078;
+      --green-dark: #0a2c16;
+      --cyan: #60d7d7;
+      --chaos: #e84d8a;
+      --chaos2: #9b5de5;
+      --danger: #ff5252;
+      --shadow: rgba(0, 0, 0, .58);
+      --pixel: 4px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html,
+    body {
+      width: 100%;
+      min-height: 100%;
+      margin: 0;
+      background: var(--void);
+      color: var(--bone);
+      font-family: "VT323", monospace;
+      font-size: 24px;
+      overflow: hidden;
+    }
+
+    button,
+    input,
+    textarea,
+    select {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .svg-defs {
+      position: absolute;
+      width: 0;
+      height: 0;
+      overflow: hidden;
+    }
+
+    .screen {
+      position: fixed;
+      inset: 0;
+      display: none;
+      min-width: 320px;
+      min-height: 100dvh;
+      overflow: hidden;
+      background: #070510;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    .forest {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      image-rendering: pixelated;
+      shape-rendering: crispEdges;
+    }
+
+    .screen::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      background:
+        linear-gradient(180deg, rgba(7, 5, 16, .08), rgba(7, 5, 16, .46) 68%, rgba(7, 5, 16, .82)),
+        repeating-linear-gradient(0deg, rgba(255,255,255,.035) 0 1px, transparent 1px 4px);
+      mix-blend-mode: normal;
+    }
+
+    .fireflies {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .firefly {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      background: var(--gold);
+      box-shadow: 0 0 0 2px rgba(255, 207, 74, .22), 0 0 12px rgba(255, 207, 74, .8);
+      animation: drift 5s steps(10, end) infinite alternate;
+    }
+
+    @keyframes drift {
+      from { transform: translate(0, 0); opacity: .35; }
+      40% { opacity: 1; }
+      to { transform: translate(18px, -24px); opacity: .55; }
+    }
+
+    .stage {
+      position: relative;
+      z-index: 3;
+      min-height: 100dvh;
+      padding: clamp(18px, 4vw, 48px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .stage.top {
+      align-items: flex-start;
+      padding-top: 54px;
+      padding-bottom: 30px;
+      overflow-y: auto;
+    }
+
+    .pixel-window {
+      position: relative;
+      width: min(1040px, 100%);
+      background: linear-gradient(180deg, rgba(49, 29, 53, .96), rgba(23, 14, 32, .97));
+      border: 4px solid var(--line);
+      box-shadow:
+        0 0 0 4px var(--gold),
+        0 0 0 8px var(--line),
+        18px 18px 0 rgba(0, 0, 0, .42);
+      padding: clamp(18px, 3vw, 34px);
+    }
+
+    .pixel-window.slim {
+      width: min(760px, 100%);
+    }
+
+    .pixel-window.wide {
+      width: min(1180px, 100%);
+    }
+
+    .dialog-title {
+      margin: 0 0 18px;
+      font-family: "Press Start 2P", monospace;
+      font-size: clamp(13px, 2vw, 22px);
+      line-height: 1.5;
+      color: var(--gold);
+      text-shadow: 3px 3px 0 var(--line);
+      letter-spacing: 0;
+    }
+
+    .dialog-copy {
+      margin: 0 0 22px;
+      max-width: 760px;
+      color: var(--bone);
+      line-height: 1.15;
+    }
+
+    .logo {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 22px;
+      text-align: center;
+      font-family: "Press Start 2P", monospace;
+      line-height: 1.05;
+      letter-spacing: 0;
+      text-shadow: 5px 5px 0 var(--line);
+    }
+
+    .logo-khaos {
+      font-size: clamp(34px, 9vw, 96px);
+      color: var(--gold);
+    }
+
+    .logo-effect {
+      font-size: clamp(24px, 6vw, 68px);
+      color: var(--chaos);
+    }
+
+    .tagline {
+      text-align: center;
+      color: var(--bone);
+      margin: 0 auto 30px;
+      max-width: 720px;
+      line-height: 1.1;
+    }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .btn-row.center {
+      justify-content: center;
+    }
+
+    .btn-pixel {
+      border: 4px solid var(--line);
+      border-radius: 0;
+      color: var(--line);
+      background: var(--gold);
+      padding: 12px 18px;
+      min-height: 52px;
+      box-shadow: 6px 6px 0 var(--line);
+      text-transform: uppercase;
+      transition: transform .08s linear, box-shadow .08s linear, filter .08s linear;
+    }
+
+    .btn-pixel:hover {
+      transform: translate(2px, 2px);
+      box-shadow: 4px 4px 0 var(--line);
+      filter: brightness(1.08);
+    }
+
+    .btn-pixel:disabled {
+      cursor: not-allowed;
+      opacity: .48;
+      filter: grayscale(.8);
+      transform: none;
+    }
+
+    .btn-pixel.secondary {
+      background: var(--cyan);
+    }
+
+    .btn-pixel.danger {
+      background: var(--danger);
+      color: #1f0610;
+    }
+
+    .btn-pixel.ghost {
+      background: transparent;
+      color: var(--bone);
+      border-color: var(--muted);
+      box-shadow: 4px 4px 0 var(--line);
+    }
+
+    .btn-icon {
+      width: 46px;
+      height: 46px;
+      border: 4px solid var(--line);
+      background: var(--panel-2);
+      color: var(--bone);
+      box-shadow: 4px 4px 0 var(--line);
+      display: inline-grid;
+      place-items: center;
+    }
+
+    .field {
+      display: grid;
+      gap: 7px;
+      margin-bottom: 14px;
+    }
+
+    .field label,
+    .label {
+      font-family: "Press Start 2P", monospace;
+      font-size: 10px;
+      line-height: 1.4;
+      color: var(--gold);
+      text-transform: uppercase;
+    }
+
+    .field label span {
+      color: var(--muted);
+      font-family: "VT323", monospace;
+      font-size: 20px;
+      text-transform: none;
+    }
+
+    .input-pixel,
+    .select-pixel,
+    .textarea-pixel {
+      width: 100%;
+      border: 4px solid var(--line);
+      border-radius: 0;
+      background: #120d1d;
+      color: var(--bone);
+      padding: 10px 12px;
+      outline: none;
+      box-shadow: inset 4px 4px 0 rgba(0, 0, 0, .24);
+    }
+
+    .input-pixel:focus,
+    .select-pixel:focus,
+    .textarea-pixel:focus {
+      border-color: var(--gold);
+    }
+
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 18px 0;
+    }
+
+    .tab {
+      border: 4px solid var(--line);
+      background: var(--panel);
+      color: var(--bone);
+      padding: 10px 14px;
+      box-shadow: 4px 4px 0 var(--line);
+    }
+
+    .tab.active {
+      background: var(--chaos);
+      color: #210817;
+    }
+
+    .form-pane {
+      display: none;
+    }
+
+    .form-pane.active {
+      display: block;
+    }
+
+    .notice {
+      display: none;
+      border: 4px solid var(--line);
+      background: rgba(96, 215, 215, .12);
+      padding: 12px;
+      margin-bottom: 14px;
+      color: var(--bone);
+    }
+
+    .notice.active {
+      display: block;
+    }
+
+    .error {
+      min-height: 30px;
+      color: #ff9c9c;
+      margin-top: 10px;
+    }
+
+    .conn {
+      position: fixed;
+      top: 14px;
+      right: 14px;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border: 3px solid var(--line);
+      background: rgba(7, 5, 16, .82);
+      box-shadow: 4px 4px 0 var(--line);
+      color: var(--bone);
+      font-size: 20px;
+    }
+
+    .conn-dot {
+      width: 10px;
+      height: 10px;
+      background: var(--danger);
+      box-shadow: 0 0 10px rgba(255, 82, 82, .8);
+    }
+
+    .conn-dot.online {
+      background: var(--green);
+      box-shadow: 0 0 10px rgba(106, 208, 120, .8);
+    }
+
+    .conn-dot.working {
+      background: var(--gold);
+      box-shadow: 0 0 10px rgba(255, 207, 74, .8);
+    }
+
+    .lobby-head,
+    .game-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .room-code {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      border: 4px solid var(--line);
+      background: var(--gold);
+      color: var(--line);
+      box-shadow: 4px 4px 0 var(--line);
+      font-family: "Press Start 2P", monospace;
+      font-size: 12px;
+    }
+
+    .lobby-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(260px, 360px);
+      gap: 22px;
+    }
+
+    .panel {
+      border: 4px solid var(--line);
+      background: rgba(16, 12, 30, .84);
+      padding: 16px;
+      box-shadow: inset 0 0 0 4px rgba(255, 255, 255, .025);
+    }
+
+    .panel-title {
+      margin: 0 0 12px;
+      font-family: "Press Start 2P", monospace;
+      font-size: 11px;
+      line-height: 1.45;
+      color: var(--gold);
+      text-transform: uppercase;
+    }
+
+    .players {
+      display: grid;
+      gap: 10px;
+    }
+
+    .player {
+      display: grid;
+      grid-template-columns: 14px 1fr auto;
+      gap: 10px;
+      align-items: center;
+      border: 3px solid var(--line);
+      background: rgba(49, 29, 53, .78);
+      padding: 10px;
+    }
+
+    .player-dot {
+      width: 10px;
+      height: 10px;
+      background: var(--danger);
+    }
+
+    .player.online .player-dot {
+      background: var(--green);
+    }
+
+    .player-name {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      padding: 2px 8px;
+      border: 2px solid var(--line);
+      background: var(--panel-2);
+      color: var(--bone);
+      font-size: 18px;
+    }
+
+    .badge.gold {
+      background: var(--gold);
+      color: var(--line);
+    }
+
+    .badge.green {
+      background: var(--green);
+      color: var(--line);
+    }
+
+    .log {
+      height: 220px;
+      overflow: auto;
+      border: 4px solid var(--line);
+      background: #0d0a17;
+      padding: 12px;
+      color: var(--muted);
+      line-height: 1.05;
+    }
+
+    .log p {
+      margin: 0 0 8px;
+    }
+
+    .creator {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(280px, .8fr);
+      gap: 20px;
+    }
+
+    .creator-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .choice-list {
+      max-height: 430px;
+      overflow: auto;
+      display: grid;
+      gap: 10px;
+      padding-right: 4px;
+    }
+
+    .choice {
+      border: 4px solid var(--line);
+      background: rgba(32, 20, 42, .9);
+      color: var(--bone);
+      padding: 12px;
+      text-align: left;
+      box-shadow: 4px 4px 0 rgba(0, 0, 0, .55);
+    }
+
+    .choice.active {
+      background: linear-gradient(180deg, rgba(232, 77, 138, .42), rgba(49, 29, 53, .96));
+      border-color: var(--gold);
+    }
+
+    .choice-name {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 6px;
+      color: var(--gold);
+      line-height: 1;
+    }
+
+    .choice-copy {
+      color: var(--bone);
+      line-height: 1;
+    }
+
+    .choice-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .saved-list {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 14px;
+      max-height: 160px;
+      overflow: auto;
+    }
+
+    .saved-char {
+      border: 3px solid var(--line);
+      background: rgba(96, 215, 215, .1);
+      color: var(--bone);
+      padding: 9px 10px;
+      text-align: left;
+    }
+
+    .saved-char.active {
+      border-color: var(--gold);
+      background: rgba(255, 207, 74, .18);
+    }
+
+    .summary-kv {
+      display: grid;
+      grid-template-columns: 90px 1fr;
+      gap: 6px 10px;
+      margin-bottom: 12px;
+      line-height: 1.05;
+    }
+
+    .summary-kv b {
+      color: var(--muted);
+      font-weight: 400;
+    }
+
+    .chaos-meter {
+      height: 26px;
+      border: 4px solid var(--line);
+      background: #0d0a17;
+      margin: 10px 0 12px;
+      overflow: hidden;
+    }
+
+    .chaos-fill {
+      height: 100%;
+      width: 5%;
+      background: repeating-linear-gradient(90deg, var(--chaos) 0 10px, var(--chaos2) 10px 20px);
+      transition: width .18s steps(8, end);
+    }
+
+    .game-layout {
+      display: grid;
+      grid-template-columns: minmax(270px, 360px) minmax(0, 1fr);
+      gap: 20px;
+    }
+
+    .sheet-title {
+      color: var(--gold);
+      font-size: 30px;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .macro-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .macro {
+      min-height: 74px;
+      border: 3px solid var(--line);
+      background: rgba(96, 215, 215, .12);
+      color: var(--bone);
+      padding: 10px;
+      text-align: left;
+    }
+
+    .game-log {
+      min-height: 340px;
+      max-height: 48dvh;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    .tiny {
+      font-size: 18px;
+      line-height: 1;
+    }
+
+    .empty {
+      padding: 14px;
+      color: var(--muted);
+      border: 3px dashed rgba(240, 230, 210, .34);
+    }
+
+    @media (max-width: 880px) {
+      body { overflow: auto; }
+      .screen { overflow-y: auto; }
+      .stage { align-items: flex-start; padding-top: 64px; }
+      .lobby-grid,
+      .creator,
+      .game-layout {
+        grid-template-columns: 1fr;
+      }
+      .creator-grid {
+        grid-template-columns: 1fr;
+      }
+      .lobby-head,
+      .game-head {
+        display: grid;
+      }
+      .pixel-window {
+        box-shadow:
+          0 0 0 3px var(--gold),
+          0 0 0 6px var(--line),
+          9px 9px 0 rgba(0, 0, 0, .42);
+      }
+    }
+  </style>
+</head>
+<body>
+  <svg class="svg-defs" aria-hidden="true">
+    <defs>
+      <pattern id="dither" width="4" height="4" patternUnits="userSpaceOnUse">
+        <rect width="2" height="2" fill="#243350"></rect>
+        <rect x="2" y="2" width="2" height="2" fill="#243350"></rect>
+      </pattern>
+      <symbol id="forestArt" viewBox="0 0 480 270">
+        <rect width="480" height="270" fill="#111032"></rect>
+        <rect y="0" width="480" height="30" fill="#171342"></rect>
+        <rect y="30" width="480" height="30" fill="#1d1a50"></rect>
+        <rect y="60" width="480" height="34" fill="#243350"></rect>
+        <rect y="94" width="480" height="42" fill="#244760"></rect>
+        <rect y="136" width="480" height="42" fill="#173f37"></rect>
+        <rect y="178" width="480" height="92" fill="#092215"></rect>
+        <rect x="0" y="80" width="480" height="30" fill="url(#dither)" opacity=".38"></rect>
+        <rect x="376" y="26" width="42" height="42" fill="#ffcf4a"></rect>
+        <rect x="372" y="30" width="8" height="34" fill="#f0e6d2"></rect>
+        <rect x="396" y="22" width="10" height="6" fill="#fff2a8"></rect>
+        <rect x="50" y="34" width="3" height="3" fill="#f0e6d2">
+          <animate attributeName="opacity" values=".2;1;.2" dur="3s" repeatCount="indefinite"></animate>
+        </rect>
+        <rect x="120" y="48" width="3" height="3" fill="#f0e6d2">
+          <animate attributeName="opacity" values="1;.25;1" dur="4s" repeatCount="indefinite"></animate>
+        </rect>
+        <rect x="214" y="26" width="3" height="3" fill="#f0e6d2">
+          <animate attributeName="opacity" values=".3;1;.3" dur="5s" repeatCount="indefinite"></animate>
+        </rect>
+        <rect x="298" y="62" width="3" height="3" fill="#f0e6d2">
+          <animate attributeName="opacity" values=".4;1;.4" dur="3.5s" repeatCount="indefinite"></animate>
+        </rect>
+        <g opacity=".72">
+          <polygon points="0,172 20,130 42,172" fill="#07140e"></polygon>
+          <polygon points="28,176 58,112 88,176" fill="#0a1d12"></polygon>
+          <polygon points="76,176 104,128 132,176" fill="#07140e"></polygon>
+          <polygon points="122,178 160,100 198,178" fill="#0a1d12"></polygon>
+          <polygon points="186,176 220,124 254,176" fill="#07140e"></polygon>
+          <polygon points="244,178 280,106 316,178" fill="#0b2314"></polygon>
+          <polygon points="306,176 340,116 374,176" fill="#07140e"></polygon>
+          <polygon points="360,178 404,102 448,178" fill="#0b2314"></polygon>
+          <polygon points="426,176 456,126 486,176" fill="#07140e"></polygon>
+        </g>
+        <g>
+          <rect x="0" y="220" width="480" height="50" fill="#07140e"></rect>
+          <g transform="translate(18 88)">
+            <rect x="28" y="82" width="14" height="82" fill="#3b241b"></rect>
+            <rect x="20" y="88" width="30" height="10" fill="#1f5b2d"></rect>
+            <rect x="12" y="104" width="46" height="10" fill="#1a4a26"></rect>
+            <rect x="4" y="120" width="62" height="10" fill="#13381d"></rect>
+            <rect x="0" y="138" width="70" height="12" fill="#0a2c16"></rect>
+            <rect x="30" y="88" width="10" height="62" fill="#6ad078" opacity=".5"></rect>
+          </g>
+          <g transform="translate(120 72)">
+            <animateTransform attributeName="transform" type="translate" values="120 72;122 72;120 72" dur="5s" repeatCount="indefinite"></animateTransform>
+            <rect x="34" y="90" width="16" height="100" fill="#3b241b"></rect>
+            <rect x="24" y="88" width="34" height="10" fill="#2d7a3b"></rect>
+            <rect x="14" y="106" width="54" height="10" fill="#236332"></rect>
+            <rect x="6" y="126" width="70" height="12" fill="#184821"></rect>
+            <rect x="0" y="148" width="84" height="14" fill="#0a2c16"></rect>
+            <rect x="37" y="90" width="12" height="72" fill="#6ad078" opacity=".55"></rect>
+          </g>
+          <g transform="translate(252 82)">
+            <rect x="28" y="82" width="14" height="92" fill="#3b241b"></rect>
+            <rect x="18" y="82" width="34" height="10" fill="#2d7a3b"></rect>
+            <rect x="8" y="100" width="54" height="10" fill="#236332"></rect>
+            <rect x="0" y="120" width="70" height="12" fill="#184821"></rect>
+            <rect x="-8" y="142" width="86" height="14" fill="#0a2c16"></rect>
+            <rect x="30" y="84" width="10" height="70" fill="#6ad078" opacity=".5"></rect>
+          </g>
+          <g transform="translate(370 74)">
+            <animateTransform attributeName="transform" type="translate" values="370 74;368 74;370 74" dur="6s" repeatCount="indefinite"></animateTransform>
+            <rect x="32" y="92" width="16" height="98" fill="#3b241b"></rect>
+            <rect x="20" y="86" width="42" height="10" fill="#2d7a3b"></rect>
+            <rect x="10" y="106" width="62" height="10" fill="#236332"></rect>
+            <rect x="0" y="128" width="82" height="12" fill="#184821"></rect>
+            <rect x="-8" y="150" width="98" height="14" fill="#0a2c16"></rect>
+            <rect x="36" y="92" width="10" height="72" fill="#6ad078" opacity=".5"></rect>
+          </g>
+        </g>
+        <rect x="0" y="244" width="480" height="26" fill="#06100b"></rect>
+        <rect x="42" y="236" width="18" height="8" fill="#ffcf4a"></rect>
+        <rect x="46" y="228" width="10" height="8" fill="#e84d8a"></rect>
+        <rect x="318" y="238" width="22" height="6" fill="#60d7d7"></rect>
+        <rect x="332" y="232" width="8" height="6" fill="#9b5de5"></rect>
+        <rect x="92" y="216" width="8" height="8" fill="#e84d8a">
+          <animate attributeName="opacity" values=".2;1;.2" dur="2.6s" repeatCount="indefinite"></animate>
+        </rect>
+        <rect x="410" y="210" width="8" height="8" fill="#9b5de5">
+          <animate attributeName="opacity" values="1;.2;1" dur="3.1s" repeatCount="indefinite"></animate>
+        </rect>
+      </symbol>
+    </defs>
+  </svg>
+
+  <div class="conn" aria-live="polite">
+    <span id="conn-dot" class="conn-dot"></span>
+    <span id="conn-txt">offline</span>
+  </div>
+
+  <div id="s-cover" class="screen active">
+    <svg id="forest-cover" class="forest" viewBox="0 0 480 270" preserveAspectRatio="xMidYMid slice"><use href="#forestArt"></use></svg>
+    <div id="flies-cover" class="fireflies"></div>
+    <div class="stage">
+      <div>
+        <div class="logo" aria-label="Khaos Effect">
+          <div class="logo-khaos">KHAOS</div>
+          <div class="logo-effect">EFFECT</div>
+        </div>
+        <p class="tagline">Entre heróis, monstros e decisões questionáveis</p>
+        <div class="btn-row center">
+          <button id="btn-press-start" class="btn-pixel">PRESSIONE START</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="s-entry" class="screen">
+    <svg id="forest-entry" class="forest" viewBox="0 0 480 270" preserveAspectRatio="xMidYMid slice"><use href="#forestArt"></use></svg>
+    <div id="flies-entry" class="fireflies"></div>
+    <div class="stage">
+      <div class="pixel-window slim">
+        <h1 class="dialog-title">Quem ousa clicar em botões?</h1>
+        <p class="dialog-copy">Crie uma sala ou entre com um código. O caos será sincronizado de verdade; a responsabilidade continua opcional.</p>
+
+        <div id="reconnect-card" class="notice">
+          <div id="reconnect-info"></div>
+          <div class="btn-row" style="margin-top:10px">
+            <button id="btn-reconnect" class="btn-pixel secondary">Reconectar</button>
+            <button id="btn-forget" class="btn-pixel ghost">Esquecer</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="inp-name">Nome do jogador</label>
+          <input id="inp-name" class="input-pixel" maxlength="32" autocomplete="nickname" placeholder="Lucas, O Culpado">
+        </div>
+
+        <div class="tabs">
+          <button id="tab-create" class="tab active" type="button">Criar sala</button>
+          <button id="tab-join" class="tab" type="button">Entrar</button>
+        </div>
+
+        <div id="form-create" class="form-pane active">
+          <div class="field">
+            <label for="inp-session">Nome da sessão</label>
+            <input id="inp-session" class="input-pixel" maxlength="48" placeholder="A Floresta Processa Alguém">
+          </div>
+          <div class="field">
+            <label for="inp-cpw">Senha do Mestre <span>(opcional)</span></label>
+            <input id="inp-cpw" class="input-pixel" maxlength="32" type="password" placeholder="ninguém viu">
+          </div>
+          <button id="btn-create" class="btn-pixel">Criar</button>
+        </div>
+
+        <div id="form-join" class="form-pane">
+          <div class="field">
+            <label for="inp-code">Código</label>
+            <input id="inp-code" class="input-pixel" maxlength="10" placeholder="KHAOS-XXXX" autocomplete="off">
+          </div>
+          <div class="field">
+            <label for="inp-jpw">Senha <span>(se tiver)</span></label>
+            <input id="inp-jpw" class="input-pixel" maxlength="32" type="password">
+          </div>
+          <button id="btn-join" class="btn-pixel secondary">Entrar</button>
+        </div>
+
+        <div id="entry-err" class="error" role="alert"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="s-lobby" class="screen">
+    <svg id="forest-lobby" class="forest" viewBox="0 0 480 270" preserveAspectRatio="xMidYMid slice"><use href="#forestArt"></use></svg>
+    <div id="flies-lobby" class="fireflies"></div>
+    <div class="stage top">
+      <div class="pixel-window wide">
+        <div class="lobby-head">
+          <div>
+            <h1 id="lobby-name" class="dialog-title">Lobby</h1>
+            <div id="lobby-code" class="room-code">CODIGO <span id="lobby-code-val">KHAOS-----</span></div>
+          </div>
+          <div class="btn-row">
+            <button id="btn-master-start" class="btn-pixel">Iniciar</button>
+            <button id="btn-leave" class="btn-pixel danger">Sair</button>
+          </div>
+        </div>
+        <div class="lobby-grid">
+          <div class="panel">
+            <h2 class="panel-title">Jogadores <span id="player-count">0</span></h2>
+            <div id="players" class="players"></div>
+          </div>
+          <div class="panel">
+            <h2 class="panel-title">Registro</h2>
+            <div id="log" class="log"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="s-character" class="screen">
+    <svg id="forest-character" class="forest" viewBox="0 0 480 270" preserveAspectRatio="xMidYMid slice"><use href="#forestArt"></use></svg>
+    <div id="flies-character" class="fireflies"></div>
+    <div class="stage top">
+      <div class="pixel-window wide">
+        <div class="lobby-head">
+          <div>
+            <h1 class="dialog-title">Criação de personagem</h1>
+            <p class="dialog-copy">Escolha sem inventar dado novo. O sistema já tem coisa suficiente para se arrepender.</p>
+          </div>
+          <button id="btn-char-back" class="btn-pixel ghost">Lobby</button>
+        </div>
+        <div class="creator">
+          <div>
+            <div class="field">
+              <label for="char-name">Nome do personagem</label>
+              <input id="char-name" class="input-pixel" maxlength="48" placeholder="Sir Fulano de Tal, provisoriamente vivo">
+            </div>
+            <div class="creator-grid">
+              <div class="panel">
+                <h2 class="panel-title">Raça</h2>
+                <div id="char-races" class="choice-list"></div>
+              </div>
+              <div class="panel">
+                <h2 class="panel-title">Classe</h2>
+                <div id="char-classes" class="choice-list"></div>
+              </div>
+            </div>
+            <div class="panel" style="margin-top:14px">
+              <h2 class="panel-title">Subclasse</h2>
+              <div id="char-subclasses" class="choice-list"></div>
+            </div>
+          </div>
+          <aside>
+            <div class="panel">
+              <h2 class="panel-title">Personagens salvos</h2>
+              <div id="char-saved" class="saved-list"></div>
+              <button id="btn-char-new" class="btn-pixel secondary" style="width:100%">Novo</button>
+            </div>
+            <div class="panel" style="margin-top:14px">
+              <h2 class="panel-title">Resumo</h2>
+              <div id="char-summary"></div>
+              <button id="btn-char-save" class="btn-pixel" style="width:100%;margin-top:12px">Salvar e jogar</button>
+              <div id="char-err" class="error"></div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="s-game" class="screen">
+    <svg id="forest-game" class="forest" viewBox="0 0 480 270" preserveAspectRatio="xMidYMid slice"><use href="#forestArt"></use></svg>
+    <div id="flies-game" class="fireflies"></div>
+    <div class="stage top">
+      <div class="pixel-window wide">
+        <div class="game-head">
+          <div>
+            <h1 id="game-room-name" class="dialog-title">Mesa</h1>
+            <div class="room-code">CODIGO <span id="game-code-val">KHAOS-----</span></div>
+          </div>
+          <div class="btn-row">
+            <button id="btn-game-character" class="btn-pixel secondary">Ficha</button>
+            <button id="btn-game-lobby" class="btn-pixel ghost">Lobby</button>
+          </div>
+        </div>
+        <div class="game-layout">
+          <aside class="panel">
+            <h2 class="panel-title">Ficha ativa</h2>
+            <div id="game-sheet"></div>
+            <div class="chaos-meter"><div id="chaos-fill" class="chaos-fill"></div></div>
+            <div class="btn-row">
+              <button id="btn-roll-d20" class="btn-pixel">D20</button>
+              <button id="btn-chaos-plus" class="btn-pixel secondary">CAOS +5</button>
+              <button id="btn-chaos-minus" class="btn-pixel ghost">CAOS -5</button>
+            </div>
+          </aside>
+          <main class="panel">
+            <h2 class="panel-title">Rolagens e macros</h2>
+            <div id="macro-grid" class="macro-grid"></div>
+            <h2 class="panel-title" style="margin-top:18px">Histórico</h2>
+            <div id="game-log" class="log game-log"></div>
+          </main>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script id="ke-data">
+/*__KE_DATA__*/
+  </script>
+  <script id="app-script">
+  "use strict";
+
+  const SUPABASE_URL = "https://xlrljmfypyeknaurgeyi.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_kGt9iWF5QESGJgP749lyiw_8hj12nIj";
+
+  let sb = null;
+
+  const $ = (id) => document.getElementById(id);
+  const esc = (value) => String(value ?? "").replace(/[&<>"']/g, (ch) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    "\"": "&quot;",
+    "'": "&#39;"
+  }[ch]));
+  const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
+  const short = (text, size) => {
+    const value = String(text || "");
+    return value.length > size ? value.slice(0, size - 1) + "..." : value;
+  };
+  const nowIso = () => new Date().toISOString();
+  const online = (player) => {
+    if (!player || !player.last_seen) return false;
+    return Date.now() - new Date(player.last_seen).getTime() < 20000;
+  };
+
+  const RL = {
+    comum: "comum",
+    incomum: "incomum",
+    raro: "raro",
+    rara: "rara",
+    lendário: "lendário",
+    lendario: "lendário"
+  };
+
+  const Identity = {
+    key: "ke_identity_v2",
+    lastKey: "ke_last_session_v2",
+    pkey: "",
+    name: "",
+    load() {
+      let data = null;
+      try { data = JSON.parse(localStorage.getItem(this.key) || "null"); } catch {}
+      this.pkey = data?.pkey || ("pk_" + crypto.randomUUID());
+      this.name = data?.name || "";
+      this.save();
+    },
+    save() {
+      try { localStorage.setItem(this.key, JSON.stringify({ pkey: this.pkey, name: this.name })); } catch {}
+    },
+    setName(name) {
+      this.name = String(name || "").trim();
+      this.save();
+    },
+    saveLast() {
+      if (!S.room) return;
+      try {
+        localStorage.setItem(this.lastKey, JSON.stringify({
+          room_id: S.room.id,
+          code: S.room.code,
+          name: S.room.name,
+          isMaster: S.isMaster,
+          saved_at: nowIso()
+        }));
+      } catch {}
+    },
+    getLast() {
+      try { return JSON.parse(localStorage.getItem(this.lastKey) || "null"); } catch { return null; }
+    },
+    clearLast() {
+      try { localStorage.removeItem(this.lastKey); } catch {}
+    }
+  };
+
+  const S = {
+    pkey: "",
+    name: "",
+    mode: "create",
+    room: null,
+    player: null,
+    players: [],
+    isMaster: false,
+    characters: [],
+    character: null,
+    history: [],
+    selected: { id: null, race: null, cls: null, sub: null },
+    channel: null,
+    heartbeat: null
+  };
+
+  const UI = {
+    show(id) {
+      document.querySelectorAll(".screen").forEach((screen) => screen.classList.remove("active"));
+      $(id)?.classList.add("active");
+    },
+    conn(state, text) {
+      const dot = $("conn-dot");
+      dot.className = "conn-dot" + (state ? " " + state : "");
+      $("conn-txt").textContent = text || state || "offline";
+    },
+    err(message, target = "entry-err") {
+      const el = $(target);
+      if (el) el.textContent = message || "";
+    },
+    log(message) {
+      const el = $("log");
+      if (!el) return;
+      const p = document.createElement("p");
+      p.textContent = "[" + new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) + "] " + message;
+      el.prepend(p);
+    },
+    gameLog(message) {
+      const el = $("game-log");
+      if (!el) return;
+      const p = document.createElement("p");
+      p.innerHTML = message;
+      el.prepend(p);
+    }
+  };
+
+  function initSupabase() {
+    try {
+      if (window.supabase?.createClient) {
+        sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+          auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+          realtime: { params: { eventsPerSecond: 8 } }
+        });
+        UI.conn("working", "supabase");
+      } else {
+        UI.conn("", "sem rede");
+      }
+    } catch (err) {
+      console.warn(err);
+      UI.conn("", "offline");
+    }
+  }
+
+  function requireClient() {
+    if (!sb) {
+      UI.err("Supabase não carregou. A floresta abriu; o multiplayer ainda está esperando a internet parar de dramatizar.");
+      UI.conn("", "offline");
+      return false;
+    }
+    return true;
+  }
+
+  function requireName() {
+    const name = $("inp-name").value.trim();
+    if (!name) {
+      UI.err("Digite seu nome antes de se tornar estatística.");
+      return "";
+    }
+    Identity.setName(name);
+    S.name = name;
+    return name;
+  }
+
+  function genCode() {
+    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    let code = "KHAOS-";
+    for (let i = 0; i < 4; i += 1) code += chars[Math.floor(Math.random() * chars.length)];
+    return code;
+  }
+
+  function setMode(mode) {
+    S.mode = mode;
+    $("tab-create").classList.toggle("active", mode === "create");
+    $("tab-join").classList.toggle("active", mode === "join");
+    $("form-create").classList.toggle("active", mode === "create");
+    $("form-join").classList.toggle("active", mode === "join");
+    UI.err("");
+  }
+
+  function addFireflies(id) {
+    const root = $(id);
+    if (!root || root.children.length) return;
+    const points = [
+      [12, 66, 0], [22, 74, .8], [38, 62, 1.3], [55, 70, .4], [72, 58, 1.8],
+      [84, 76, .9], [18, 50, 1.6], [66, 46, .2], [46, 82, 2.1], [31, 56, 1.1]
+    ];
+    points.forEach(([x, y, delay]) => {
+      const dot = document.createElement("span");
+      dot.className = "firefly";
+      dot.style.left = x + "%";
+      dot.style.top = y + "%";
+      dot.style.animationDelay = delay + "s";
+      root.appendChild(dot);
+    });
+  }
+
+  const Rooms = {
+    async create() {
+      if (!requireClient()) return;
+      const name = requireName();
+      if (!name) return;
+      UI.err("");
+      UI.conn("working", "criando");
+      const roomName = $("inp-session").value.trim() || "Sessão Khaótica";
+      const pw = $("inp-cpw").value.trim() || null;
+      const payload = {
+        code: genCode(),
+        name: roomName,
+        master_key: S.pkey,
+        pw,
+        chaos: 5,
+        scene: "Floresta de Khaos",
+        is_night: true,
+        started: false,
+        initiative: [],
+        turn_idx: 0,
+        round_num: 1
+      };
+      const { data, error } = await sb.from("khaos_rooms").insert(payload).select().single();
+      if (error) return this.fail(error, "Não consegui criar a sala.");
+      S.room = data;
+      S.isMaster = true;
+      await this._addSelf(true);
+      Identity.saveLast();
+      Live.subscribe();
+      await Lobby.enter();
+      UI.log("Sala criada. O botão existe; isso já é metade do perigo.");
+    },
+    async join() {
+      if (!requireClient()) return;
+      const name = requireName();
+      if (!name) return;
+      UI.err("");
+      UI.conn("working", "entrando");
+      const code = $("inp-code").value.trim().toUpperCase();
+      if (!/^KHAOS-[A-Z0-9]{4}$/.test(code)) {
+        UI.err("Código inválido. Formato: KHAOS-XXXX.");
+        return;
+      }
+      const { data: room, error } = await sb.from("khaos_rooms").select("*").eq("code", code).maybeSingle();
+      if (error) return this.fail(error, "Não consegui procurar a sala.");
+      if (!room) {
+        UI.err("Sala não encontrada. Talvez ela tenha tomado uma decisão questionável.");
+        return;
+      }
+      const pw = $("inp-jpw").value.trim();
+      if (room.pw && room.pw !== pw) {
+        UI.err("Senha incorreta.");
+        return;
+      }
+      S.room = room;
+      S.isMaster = room.master_key === S.pkey;
+      await this._addSelf(S.isMaster);
+      Identity.saveLast();
+      Live.subscribe();
+      await Lobby.enter();
+      UI.log("Entrou na sala.");
+    },
+    async reconnect() {
+      if (!requireClient()) return;
+      const last = Identity.getLast();
+      if (!last?.room_id) return;
+      UI.conn("working", "reconectando");
+      const { data: room, error } = await sb.from("khaos_rooms").select("*").eq("id", last.room_id).maybeSingle();
+      if (error) return this.fail(error, "Não consegui reconectar.");
+      if (!room) {
+        Identity.clearLast();
+        renderReconnect();
+        UI.err("A última sala não existe mais.");
+        return;
+      }
+      S.room = room;
+      S.isMaster = room.master_key === S.pkey || !!last.isMaster;
+      await this._addSelf(S.isMaster);
+      Identity.saveLast();
+      Live.subscribe();
+      await Lobby.enter();
+      UI.log("Reconectado.");
+    },
+    async _addSelf(isMaster) {
+      const base = {
+        room_id: S.room.id,
+        player_key: S.pkey,
+        name: S.name || Identity.name || "Sem Nome, Com Consequências",
+        last_seen: nowIso()
+      };
+      const { data: existing, error: findError } = await sb
+        .from("khaos_players")
+        .select("*")
+        .eq("room_id", S.room.id)
+        .eq("player_key", S.pkey)
+        .limit(1)
+        .maybeSingle();
+      if (findError) throw findError;
+      let result;
+      if (existing) {
+        const payload = {
+          ...base,
+          is_master: !!(existing.is_master || isMaster || S.room.master_key === S.pkey)
+        };
+        result = await sb.from("khaos_players").update(payload).eq("id", existing.id).select().single();
+      } else {
+        const payload = {
+          ...base,
+          is_master: !!isMaster,
+          ready: false,
+          hp: 80,
+          max_hp: 80,
+          conditions: []
+        };
+        result = await sb.from("khaos_players").insert(payload).select().single();
+      }
+      if (result.error) throw result.error;
+      S.player = result.data;
+      S.isMaster = !!result.data.is_master;
+      await this.fetchPlayers();
+    },
+    async fetchPlayers() {
+      if (!S.room || !sb) return;
+      const { data, error } = await sb
+        .from("khaos_players")
+        .select("*")
+        .eq("room_id", S.room.id)
+        .order("created_at", { ascending: true });
+      if (!error) S.players = data || [];
+    },
+    async fetchRoom() {
+      if (!S.room || !sb) return;
+      const { data, error } = await sb.from("khaos_rooms").select("*").eq("id", S.room.id).maybeSingle();
+      if (!error && data) S.room = data;
+    },
+    async start() {
+      if (!S.isMaster) return;
+      UI.conn("working", "iniciando");
+      const { data, error } = await sb
+        .from("khaos_rooms")
+        .update({ started: true, updated_at: nowIso() })
+        .eq("id", S.room.id)
+        .select()
+        .single();
+      if (error) return this.fail(error, "Não consegui iniciar.");
+      S.room = data;
+      Identity.saveLast();
+      await Character.enter();
+    },
+    async leave() {
+      Live.unsubscribe();
+      Identity.clearLast();
+      S.room = null;
+      S.player = null;
+      S.players = [];
+      S.character = null;
+      S.isMaster = false;
+      UI.show("s-entry");
+      renderReconnect();
+      UI.conn(sb ? "working" : "", sb ? "supabase" : "offline");
+    },
+    fail(error, message) {
+      console.error(error);
+      UI.err(message + " " + (error?.message || ""));
+      UI.conn("", "erro");
+    }
+  };
+
+  const Live = {
+    subscribe() {
+      this.unsubscribe();
+      if (!sb || !S.room) return;
+      const roomId = S.room.id;
+      S.channel = sb
+        .channel("khaos-room-" + roomId)
+        .on("postgres_changes", { event: "*", schema: "public", table: "khaos_players", filter: "room_id=eq." + roomId }, async () => {
+          await Rooms.fetchPlayers();
+          Lobby.refresh();
+        })
+        .on("postgres_changes", { event: "*", schema: "public", table: "khaos_rooms", filter: "id=eq." + roomId }, async (payload) => {
+          if (payload.new) S.room = payload.new;
+          Lobby.refresh();
+          Game.refreshRoom();
+          if (S.room?.started && $("s-lobby")?.classList.contains("active")) await Character.enter();
+        })
+        .on("postgres_changes", { event: "INSERT", schema: "public", table: "khaos_history", filter: "room_id=eq." + roomId }, (payload) => {
+          if (payload.new) History.addLocal(payload.new);
+        })
+        .subscribe((status) => {
+          UI.conn(status === "SUBSCRIBED" ? "online" : "working", status === "SUBSCRIBED" ? "ao vivo" : "conectando");
+        });
+
+      S.heartbeat = setInterval(async () => {
+        if (!sb || !S.player) return;
+        await sb.from("khaos_players").update({ last_seen: nowIso() }).eq("id", S.player.id);
+      }, 8000);
+    },
+    unsubscribe() {
+      if (S.heartbeat) clearInterval(S.heartbeat);
+      S.heartbeat = null;
+      if (S.channel && sb) sb.removeChannel(S.channel);
+      S.channel = null;
+    }
+  };
+
+  const Lobby = {
+    async enter() {
+      UI.show("s-lobby");
+      $("lobby-name").textContent = S.room?.name || "Lobby";
+      $("lobby-code-val").textContent = S.room?.code || "KHAOS-????";
+      $("btn-master-start").style.display = S.isMaster ? "" : "none";
+      await Rooms.fetchPlayers();
+      this.refresh();
+      if (S.room?.started) await Character.enter();
+    },
+    refresh() {
+      if (!$("s-lobby")?.classList.contains("active") && !$("s-game")?.classList.contains("active")) return;
+      $("player-count").textContent = String(S.players.length);
+      $("players").innerHTML = S.players.map((p) => {
+        const isOnline = online(p);
+        const tags = [
+          p.is_master ? "<span class=\"badge gold\">Mestre</span>" : "",
+          p.character_id ? "<span class=\"badge green\">Ficha</span>" : "<span class=\"badge\">Sem ficha</span>"
+        ].join("");
+        return "<div class=\"player " + (isOnline ? "online" : "") + "\">" +
+          "<span class=\"player-dot\"></span>" +
+          "<span class=\"player-name\">" + esc(p.name) + "</span>" +
+          "<span>" + tags + "</span>" +
+          "</div>";
+      }).join("") || "<div class=\"empty\">Nenhum jogador visível. Assustadoramente organizado.</div>";
+    }
+  };
+
+  const Character = {
+    async enter() {
+      UI.show("s-character");
+      UI.err("", "char-err");
+      await this.fetch();
+      if (S.player?.character_id) {
+        const current = S.characters.find((ch) => ch.id === S.player.character_id);
+        if (current) this.load(current.id, false);
+      }
+      this.render();
+    },
+    async fetch() {
+      if (!sb) return;
+      const { data, error } = await sb
+        .from("khaos_characters")
+        .select("*")
+        .eq("owner_key", S.pkey)
+        .order("created_at", { ascending: false });
+      if (!error) S.characters = data || [];
+    },
+    render() {
+      this.renderSaved();
+      this.renderChoices();
+      this.renderSummary();
+    },
+    renderSaved() {
+      const el = $("char-saved");
+      if (!el) return;
+      el.innerHTML = S.characters.map((ch) =>
+        "<button class=\"saved-char " + (S.selected.id === ch.id ? "active" : "") + "\" onclick=\"Character.load('" + ch.id + "')\">" +
+        "<strong>" + esc(ch.name) + "</strong><br><span class=\"muted tiny\">" + esc(ch.race_name) + " / " + esc(ch.class_name) + "</span>" +
+        "</button>"
+      ).join("") || "<div class=\"empty\">Nenhum personagem salvo ainda.</div>";
+    },
+    renderChoices() {
+      $("char-races").innerHTML = KE.racas.map((race) => this.choiceHtml("race", race, S.selected.race?.id === race.id)).join("");
+      $("char-classes").innerHTML = KE.classes.map((cls) => this.choiceHtml("class", cls, S.selected.cls?.id === cls.id)).join("");
+      if (!S.selected.cls) {
+        $("char-subclasses").innerHTML = "<div class=\"empty\">Escolha uma classe para revelar suas três formas de complicar a mesa.</div>";
+      } else {
+        $("char-subclasses").innerHTML = (S.selected.cls.subs || []).map((sub) => this.choiceHtml("sub", sub, S.selected.sub?.id === sub.id)).join("");
+      }
+    },
+    choiceHtml(type, item, active) {
+      const handler = type === "race" ? "Character.selectRace" : type === "class" ? "Character.selectClass" : "Character.selectSub";
+      const desc = item.descricao || item.desc || item.traco || item.efeito || "";
+      const meta = [
+        item.raridade ? "<span class=\"badge\">" + esc(RL[item.raridade] || item.raridade) + "</span>" : "",
+        item.mod_caos ? "<span class=\"badge gold\">CAOS +" + esc(item.mod_caos) + "</span>" : ""
+      ].join("");
+      return "<button class=\"choice " + (active ? "active" : "") + "\" onclick=\"" + handler + "('" + item.id + "')\">" +
+        "<div class=\"choice-name\"><strong>" + esc(item.nome) + "</strong></div>" +
+        "<div class=\"choice-copy\">" + esc(short(desc, 130)) + "</div>" +
+        "<div class=\"choice-meta\">" + meta + "</div>" +
+        "</button>";
+    },
+    renderSummary() {
+      const chaos = this.chaos();
+      $("char-summary").innerHTML =
+        "<div class=\"summary-kv\">" +
+        "<b>Raça</b><span>" + esc(S.selected.race?.nome || "-") + "</span>" +
+        "<b>Classe</b><span>" + esc(S.selected.cls?.nome || "-") + "</span>" +
+        "<b>Sub</b><span>" + esc(S.selected.sub?.nome || "-") + "</span>" +
+        "<b>CAOS</b><span style=\"color:" + (chaos >= 6 ? "var(--danger)" : chaos >= 3 ? "var(--amber)" : "var(--green)") + "\">" + chaos + "</span>" +
+        "</div>" +
+        "<p class=\"muted tiny\">XP 0 / nível 1 / HP 80. A ilusão de controle começa aqui.</p>";
+      $("btn-char-save").disabled = !(S.selected.race && S.selected.cls && this.subOk());
+    },
+    selectRace(id) {
+      S.selected.race = KE.racas.find((race) => race.id === id) || null;
+      S.selected.id = null;
+      this.render();
+    },
+    selectClass(id) {
+      S.selected.cls = KE.classes.find((cls) => cls.id === id) || null;
+      S.selected.sub = null;
+      S.selected.id = null;
+      this.render();
+    },
+    selectSub(id) {
+      S.selected.sub = S.selected.cls?.subs?.find((sub) => sub.id === id) || null;
+      S.selected.id = null;
+      this.render();
+    },
+    load(id, announce = true) {
+      const ch = S.characters.find((item) => item.id === id);
+      if (!ch) return;
+      S.selected.id = ch.id;
+      S.selected.race = KE.racas.find((race) => race.id === ch.race_id) || null;
+      S.selected.cls = KE.classes.find((cls) => cls.id === ch.class_id) || null;
+      S.selected.sub = S.selected.cls?.subs?.find((sub) => sub.id === ch.sub_id) || null;
+      $("char-name").value = ch.name || "";
+      if (announce) UI.err("Personagem carregado. Tecnicamente, isso conta como apego.", "char-err");
+      this.render();
+    },
+    newChar() {
+      S.selected = { id: null, race: null, cls: null, sub: null };
+      $("char-name").value = "";
+      UI.err("", "char-err");
+      this.render();
+    },
+    subOk() {
+      return !S.selected.cls?.subs?.length || !!S.selected.sub;
+    },
+    chaos() {
+      return (S.selected.race?.mod_caos || 0) + (S.selected.cls?.mod_caos || 0) + (S.selected.sub?.mod_caos || 0);
+    },
+    macros() {
+      const macros = [];
+      const push = (source, ability) => {
+        if (!ability?.nome) return;
+        macros.push({
+          name: ability.nome,
+          source,
+          dice: "1d20",
+          effect: ability.efeito || ability.poder || "",
+          trigger: ability.trigger || "",
+          consequence: ability.cons || ability.consequencia || ""
+        });
+      };
+      (S.selected.cls?.habs || []).forEach((ability) => push(S.selected.cls.nome, ability));
+      (S.selected.sub?.habs || []).forEach((ability) => push(S.selected.sub.nome, ability));
+      return macros.slice(0, 8);
+    },
+    async save() {
+      if (!requireClient()) return;
+      const name = $("char-name").value.trim();
+      if (!name) return UI.err("Nomeie o personagem. O anonimato não protege ninguém aqui.", "char-err");
+      if (!S.selected.race || !S.selected.cls || !this.subOk()) {
+        return UI.err("Escolha raça, classe e subclasse.", "char-err");
+      }
+      UI.err("", "char-err");
+      UI.conn("working", "salvando ficha");
+      const data = {
+        schemaVersion: 1,
+        stats: {},
+        skills: [],
+        macros: this.macros(),
+        inventory: [],
+        notes: "",
+        source: "khaos_effect_legacy_data"
+      };
+      const existing = S.selected.id ? S.characters.find((item) => item.id === S.selected.id) : null;
+      const payload = {
+        campaign_id: S.room?.campaign_id || null,
+        owner_key: S.pkey,
+        name,
+        race_id: S.selected.race.id,
+        race_name: S.selected.race.nome,
+        class_id: S.selected.cls.id,
+        class_name: S.selected.cls.nome,
+        sub_id: S.selected.sub?.id || null,
+        sub_name: S.selected.sub?.nome || null,
+        data,
+        chaos_base: this.chaos(),
+        xp: existing?.xp ?? 0,
+        level: existing?.level ?? 1,
+        hp: existing?.hp ?? 80,
+        max_hp: existing?.max_hp ?? 80,
+        conditions: existing?.conditions || [],
+        notes: existing?.notes || ""
+      };
+      let result;
+      if (S.selected.id) {
+        result = await sb.from("khaos_characters").update(payload).eq("id", S.selected.id).select().single();
+      } else {
+        result = await sb.from("khaos_characters").insert(payload).select().single();
+      }
+      if (result.error) {
+        console.error(result.error);
+        UI.err("Falha ao salvar ficha. " + result.error.message, "char-err");
+        UI.conn("", "erro");
+        return;
+      }
+      S.character = result.data;
+      S.selected.id = result.data.id;
+      const playerUpdate = await sb
+        .from("khaos_players")
+        .update({
+          character_id: result.data.id,
+          ready: true,
+          hp: result.data.hp,
+          max_hp: result.data.max_hp,
+          conditions: result.data.conditions || [],
+          last_seen: nowIso()
+        })
+        .eq("id", S.player.id)
+        .select()
+        .single();
+      if (!playerUpdate.error) S.player = playerUpdate.data;
+      await Rooms.fetchPlayers();
+      await this.fetch();
+      Identity.saveLast();
+      await Game.enter();
+    }
+  };
+
+  const History = {
+    async fetch() {
+      if (!sb || !S.room) return;
+      const { data, error } = await sb
+        .from("khaos_history")
+        .select("*")
+        .eq("room_id", S.room.id)
+        .or("private_to.is.null,private_to.eq." + S.pkey)
+        .order("created_at", { ascending: false })
+        .limit(60);
+      if (!error) {
+        S.history = data || [];
+        this.render();
+      }
+    },
+    render() {
+      const el = $("game-log");
+      if (!el) return;
+      el.innerHTML = S.history.map((item) =>
+        "<p><span class=\"badge\">" + esc(item.icon || "log") + "</span> " + esc(item.text || "") + "</p>"
+      ).join("") || "<div class=\"empty\">Nada aconteceu ainda. O que, estatisticamente, é suspeito.</div>";
+    },
+    addLocal(item) {
+      if (S.history.some((old) => old.id === item.id)) return;
+      S.history.unshift(item);
+      this.render();
+    },
+    async insert(kind, icon, text, privateTo = null) {
+      if (!sb || !S.room) return;
+      await sb.from("khaos_history").insert({
+        room_id: S.room.id,
+        kind,
+        icon,
+        text,
+        private_to: privateTo
+      });
+    }
+  };
+
+  const Game = {
+    async enter() {
+      UI.show("s-game");
+      if (!S.character && S.player?.character_id) {
+        await Character.fetch();
+        S.character = S.characters.find((ch) => ch.id === S.player.character_id) || null;
+      }
+      await Rooms.fetchRoom();
+      await History.fetch();
+      this.render();
+    },
+    render() {
+      $("game-room-name").textContent = S.room?.name || "Mesa";
+      $("game-code-val").textContent = S.room?.code || "KHAOS-????";
+      this.refreshRoom();
+      if (!S.character) {
+        $("game-sheet").innerHTML = "<div class=\"empty\">Sem ficha ativa.</div>";
+        $("macro-grid").innerHTML = "";
+        return;
+      }
+      const data = S.character.data || {};
+      $("game-sheet").innerHTML =
+        "<div class=\"sheet-title\">" + esc(S.character.name) + "</div>" +
+        "<div class=\"muted\">" + esc(S.character.race_name) + " / " + esc(S.character.class_name) + (S.character.sub_name ? " / " + esc(S.character.sub_name) : "") + "</div>" +
+        "<div class=\"summary-kv\" style=\"margin-top:12px\">" +
+        "<b>Nível</b><span>" + esc(S.character.level || 1) + "</span>" +
+        "<b>XP</b><span>" + esc(S.character.xp || 0) + "</span>" +
+        "<b>HP</b><span>" + esc(S.character.hp || 80) + "/" + esc(S.character.max_hp || 80) + "</span>" +
+        "<b>CAOS base</b><span>" + esc(S.character.chaos_base || 0) + "</span>" +
+        "</div>";
+      const macros = data.macros || [];
+      $("macro-grid").innerHTML = macros.map((macro, index) =>
+        "<button class=\"macro\" onclick=\"Game.rollMacro(" + index + ")\"><strong>" + esc(macro.name) + "</strong><br><span class=\"muted tiny\">" + esc(short(macro.effect, 86)) + "</span></button>"
+      ).join("") || "<div class=\"empty\">Macros aparecerão aqui conforme a ficha ganhar dentes.</div>";
+    },
+    refreshRoom() {
+      const chaos = clamp(Number(S.room?.chaos || 0), 0, 100);
+      if ($("chaos-fill")) $("chaos-fill").style.width = chaos + "%";
+      if ($("btn-chaos-plus")) $("btn-chaos-plus").style.display = S.isMaster ? "" : "none";
+      if ($("btn-chaos-minus")) $("btn-chaos-minus").style.display = S.isMaster ? "" : "none";
+    },
+    async rollDie(sides) {
+      const result = 1 + Math.floor(Math.random() * sides);
+      const who = S.character?.name || S.name;
+      await History.insert("roll", "D" + sides, who + " rolou D" + sides + " = " + result);
+    },
+    async rollMacro(index) {
+      const macro = S.character?.data?.macros?.[index];
+      if (!macro) return;
+      const result = 1 + Math.floor(Math.random() * 20);
+      await History.insert("macro", "D20", S.character.name + " usou " + macro.name + " = " + result);
+    },
+    async changeChaos(delta) {
+      if (!S.isMaster || !sb || !S.room) return;
+      const chaos = clamp(Number(S.room.chaos || 0) + delta, 0, 100);
+      const { data, error } = await sb.from("khaos_rooms").update({ chaos, updated_at: nowIso() }).eq("id", S.room.id).select().single();
+      if (!error && data) {
+        S.room = data;
+        this.refreshRoom();
+        await History.insert("chaos", "CAOS", "CAOS agora está em " + chaos + ".");
+      }
+    }
+  };
+
+  function renderReconnect() {
+    const card = $("reconnect-card");
+    const info = $("reconnect-info");
+    const last = Identity.getLast();
+    if (!last?.room_id) {
+      card.classList.remove("active");
+      return;
+    }
+    info.textContent = "Última sala: " + (last.name || last.code || "desconhecida") + ".";
+    card.classList.add("active");
+  }
+
+  function bind() {
+    $("btn-press-start").addEventListener("click", () => UI.show("s-entry"));
+    $("tab-create").addEventListener("click", () => setMode("create"));
+    $("tab-join").addEventListener("click", () => setMode("join"));
+    $("btn-create").addEventListener("click", () => Rooms.create());
+    $("btn-join").addEventListener("click", () => Rooms.join());
+    $("btn-reconnect").addEventListener("click", () => Rooms.reconnect());
+    $("btn-forget").addEventListener("click", () => { Identity.clearLast(); renderReconnect(); });
+    $("btn-leave").addEventListener("click", () => Rooms.leave());
+    $("btn-master-start").addEventListener("click", () => Rooms.start());
+    $("btn-char-back").addEventListener("click", () => Lobby.enter());
+    $("btn-char-new").addEventListener("click", () => Character.newChar());
+    $("btn-char-save").addEventListener("click", () => Character.save());
+    $("btn-game-character").addEventListener("click", () => Character.enter());
+    $("btn-game-lobby").addEventListener("click", () => Lobby.enter());
+    $("btn-roll-d20").addEventListener("click", () => Game.rollDie(20));
+    $("btn-chaos-plus").addEventListener("click", () => Game.changeChaos(5));
+    $("btn-chaos-minus").addEventListener("click", () => Game.changeChaos(-5));
+    $("inp-code").addEventListener("input", (event) => {
+      event.target.value = event.target.value.toUpperCase().replace(/[^A-Z0-9-]/g, "");
+    });
+  }
+
+  function boot() {
+    Identity.load();
+    S.pkey = Identity.pkey;
+    S.name = Identity.name;
+    $("inp-name").value = Identity.name;
+    initSupabase();
+    bind();
+    renderReconnect();
+    ["flies-cover", "flies-entry", "flies-lobby", "flies-character", "flies-game"].forEach(addFireflies);
+    UI.conn(sb ? "working" : "", sb ? "supabase" : "offline");
+  }
+
+  boot();
+  </script>
+</body>
+</html>
