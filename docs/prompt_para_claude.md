@@ -206,6 +206,12 @@ Codex:
 - Smoke tests.
 - Coordenação de arquivos.
 
+## Atualização de responsabilidade
+
+Lucas definiu que a UI é responsabilidade do Claude.
+
+Qualquer estrutura visual criada pelo Codex deve ser tratada como preview técnico/funcional para validar fluxo, dados, Supabase e contratos. O Claude pode redesenhar a UI final, desde que preserve IDs, contratos de persistência e as validações de dados canônicos.
+
 ## Antes de terminar qualquer entrega
 
 Garanta que:
