@@ -31,6 +31,32 @@ Preview visual:
 - Contrato inicial de `characters.data` com `schemaVersion`, `macros`, `stats`, `skills`, `inventory` e `notes`.
 - Mesa inicial com ficha ativa, barra de CAOS, D20, macros e historico via `khaos_history`.
 
+## Atualizacao — title screen animada
+
+- Assets fornecidos movidos para `assets/title-screen/`.
+- `reference-final.png` mantido somente como referencia visual; nao e usado como tela cheia.
+- `background.png` usado como arte-base da capa.
+- `khaos-effect-logo.png` usado como logo independente acima da cena.
+- Criados `assets/title-screen/animations.json` e `assets/title-screen/scene-layout.json`.
+- Capa `s-cover` reconstruida como cena em camadas:
+  - background com comportamento `cover`;
+  - canvas de efeitos procedurais;
+  - logo independente com flutuacao e pulso no cristal;
+  - `PRESS START` funcional como elemento de UI.
+- Implementado controlador `TitleScene` com:
+  - particulas prealocadas;
+  - portal roxo;
+  - feixe azul;
+  - fogo, fumaca e brasas;
+  - ataques ocasionais dos dragoes;
+  - agua e cachoeiras;
+  - slimes/ogro com overlays ancorados ao background;
+  - meteoro ocasional;
+  - suporte a Enter, espaco, clique, toque e gamepad;
+  - fade-out unico para a cena real existente `s-entry`;
+  - reducao de movimento via `prefers-reduced-motion`.
+- Fallback tecnico: como o `background.png` ja contem a maioria das criaturas, os corpos completos ainda nao foram recortados para sprite sheets reais. Os movimentos principais usam efeitos e overlays ancorados ate haver cutouts limpos.
+
 ## Atualizacao — pagina de personagens
 
 - Tela `s-character` reestruturada em area de etapas, biblioteca, criacao, dossie e resumo.

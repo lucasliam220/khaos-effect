@@ -8,7 +8,7 @@ const html = fs.readFileSync(htmlPath, "utf8");
 const requiredIds = [
   "s-cover", "s-entry", "s-lobby", "s-character", "s-game",
   "forest-cover", "forest-entry", "forest-lobby", "forest-character", "forest-game", "forestArt",
-  "btn-press-start",
+  "title-canvas", "btn-press-start",
   "inp-name", "tab-create", "tab-join", "form-create", "form-join",
   "inp-session", "inp-cpw", "btn-create", "inp-code", "inp-jpw", "btn-join", "entry-err",
   "reconnect-card", "reconnect-info", "btn-reconnect", "btn-forget",
@@ -25,6 +25,23 @@ if (forestSymbols !== 1) throw new Error(`forestArt count should be 1, got ${for
 
 const forestUses = (html.match(/href=["']#forestArt["']/g) || []).length;
 if (forestUses !== 5) throw new Error(`forestArt use count should be 5, got ${forestUses}`);
+
+const titleAssets = [
+  "assets/title-screen/reference-final.png",
+  "assets/title-screen/background.png",
+  "assets/title-screen/khaos-effect-logo.png",
+  "assets/title-screen/animations.json",
+  "assets/title-screen/scene-layout.json"
+];
+const missingAssets = titleAssets.filter((asset) => !fs.existsSync(path.resolve(__dirname, "..", asset)));
+if (missingAssets.length) throw new Error(`Missing title assets: ${missingAssets.join(", ")}`);
+
+for (const asset of titleAssets.filter((item) => item.endsWith(".json"))) {
+  JSON.parse(fs.readFileSync(path.resolve(__dirname, "..", asset), "utf8"));
+}
+
+if (!html.includes("assets/title-screen/background.png")) throw new Error("Title background is not referenced.");
+if (!html.includes("assets/title-screen/khaos-effect-logo.png")) throw new Error("Title logo is not referenced.");
 
 const dataMatch = html.match(/<script id="ke-data">\s*([\s\S]*?)\s*<\/script>/);
 if (!dataMatch) throw new Error("Missing data script.");

@@ -1,0 +1,142 @@
+{
+  "schemaVersion": 1,
+  "canvasReference": {
+    "width": 1672,
+    "height": 941,
+    "fit": "cover"
+  },
+  "safeArea": {
+    "desktop": { "x": 0.12, "y": 0.12, "w": 0.76, "h": 0.78 },
+    "mobile": { "x": 0.06, "y": 0.12, "w": 0.88, "h": 0.76 }
+  },
+  "layers": [
+    {
+      "id": "background",
+      "asset": "assets/title-screen/background.png",
+      "position": [0.5, 0.5],
+      "scale": 1,
+      "depth": 0,
+      "origin": [0.5, 0.5],
+      "initialAnimation": "none",
+      "quality": "low"
+    },
+    {
+      "id": "portal",
+      "position": [0.5, 0.16],
+      "scale": 1,
+      "depth": 2,
+      "origin": [0.5, 0.5],
+      "initialAnimation": "portal_storm",
+      "amplitude": [0.006, 0.006],
+      "quality": "low"
+    },
+    {
+      "id": "blue-beam",
+      "position": [0.501, 0.255],
+      "scale": 1,
+      "depth": 3,
+      "origin": [0.5, 0],
+      "initialAnimation": "mecha_core_idle",
+      "amplitude": [0.002, 0.01],
+      "quality": "low"
+    },
+    {
+      "id": "red-dragon",
+      "position": [0.205, 0.19],
+      "scale": 1,
+      "depth": 4,
+      "origin": [0.5, 0.5],
+      "initialAnimation": "red_dragon_fire",
+      "actionIntervalSeconds": [7, 13],
+      "amplitude": [0.006, 0.018],
+      "quality": "medium"
+    },
+    {
+      "id": "purple-dragon",
+      "position": [0.78, 0.28],
+      "scale": 0.9,
+      "depth": 4,
+      "origin": [0.5, 0.5],
+      "initialAnimation": "purple_dragon_fire",
+      "actionIntervalSeconds": [9, 15],
+      "amplitude": [0.012, 0.014],
+      "quality": "medium"
+    },
+    {
+      "id": "mecha",
+      "position": [0.5, 0.39],
+      "scale": 1,
+      "depth": 5,
+      "origin": [0.5, 0.5],
+      "initialAnimation": "mecha_core_idle",
+      "amplitude": [0.003, 0.004],
+      "quality": "low"
+    },
+    {
+      "id": "ogre",
+      "position": [0.82, 0.46],
+      "scale": 1,
+      "depth": 5,
+      "origin": [0.5, 0.65],
+      "initialAnimation": "ogre_idle",
+      "actionIntervalSeconds": [11, 18],
+      "amplitude": [0.003, 0.007],
+      "quality": "high"
+    },
+    {
+      "id": "slime-blue",
+      "position": [0.708, 0.61],
+      "scale": 1,
+      "depth": 5,
+      "origin": [0.5, 0.75],
+      "initialAnimation": "slime_idle",
+      "actionIntervalSeconds": [2, 5],
+      "amplitude": [0.002, 0.01],
+      "quality": "medium"
+    },
+    {
+      "id": "slime-purple",
+      "position": [0.695, 0.75],
+      "scale": 0.8,
+      "depth": 5,
+      "origin": [0.5, 0.75],
+      "initialAnimation": "slime_idle",
+      "actionIntervalSeconds": [3, 6],
+      "amplitude": [0.002, 0.009],
+      "quality": "high"
+    },
+    {
+      "id": "water",
+      "position": [0.28, 0.76],
+      "scale": 1,
+      "depth": 2,
+      "origin": [0.5, 0.5],
+      "initialAnimation": "environment_water",
+      "amplitude": [0.006, 0.004],
+      "quality": "medium"
+    },
+    {
+      "id": "logo",
+      "asset": "assets/title-screen/khaos-effect-logo.png",
+      "position": [0.5, 0.5],
+      "scale": 1,
+      "depth": 10,
+      "origin": [0.5, 0.5],
+      "initialAnimation": "logo_idle",
+      "responsive": {
+        "desktopWidth": "min(72vw, 1140px)",
+        "mobileWidth": "min(92vw, 720px)"
+      },
+      "quality": "low"
+    },
+    {
+      "id": "press-start",
+      "position": [0.5, 0.86],
+      "scale": 1,
+      "depth": 11,
+      "origin": [0.5, 0.5],
+      "initialAnimation": "press_start_pulse",
+      "quality": "low"
+    }
+  ]
+}

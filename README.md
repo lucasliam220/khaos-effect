@@ -6,6 +6,13 @@ Esta build e um HTML single-file com Supabase, lobby real, criacao de personagem
 
 ![Preview da capa](assets/cover.png)
 
+A tela inicial usa os assets em `assets/title-screen/`:
+
+- `background.png` - arte-base da title screen.
+- `khaos-effect-logo.png` - logo independente.
+- `animations.json` e `scene-layout.json` - contratos de animacao/posicionamento.
+- `reference-final.png` - referencia visual, nao usada como imagem de tela cheia.
+
 ## Rodar
 
 Abra `index.html` no navegador.
@@ -45,7 +52,10 @@ Nao crie, renomeie ou remova racas/classes/subclasses/cartas sem instrucao expli
 - Supabase JS via UMD CDN
 - Supabase Realtime
 - Pixel art em SVG inline
+- Title screen em camadas HTML/CSS/canvas
 
 ## Status
 
 Veja `docs/build_status.md`.
+
+Detalhes da title screen: `docs/title_screen_animation.md`.

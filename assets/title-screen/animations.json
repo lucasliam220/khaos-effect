@@ -1,0 +1,141 @@
+{
+  "schemaVersion": 1,
+  "source": "procedural-title-scene",
+  "imageSmoothing": false,
+  "qualityLevels": {
+    "low": {
+      "particleScale": 0.45,
+      "secondaryMotion": false,
+      "attackEffects": true
+    },
+    "medium": {
+      "particleScale": 0.75,
+      "secondaryMotion": true,
+      "attackEffects": true
+    },
+    "high": {
+      "particleScale": 1,
+      "secondaryMotion": true,
+      "attackEffects": true
+    }
+  },
+  "animations": {
+    "logo_idle": {
+      "type": "css",
+      "frames": 2,
+      "fps": 1,
+      "duration": 3600,
+      "loop": true,
+      "origin": [0.5, 0.5],
+      "defaultScale": 1,
+      "events": [
+        { "name": "crystal_pulse", "at": 0.5 }
+      ]
+    },
+    "press_start_pulse": {
+      "type": "css",
+      "frames": 2,
+      "fps": 1,
+      "duration": 1400,
+      "loop": true,
+      "origin": [0.5, 0.5],
+      "defaultScale": 1,
+      "events": []
+    },
+    "red_dragon_fire": {
+      "type": "canvas-particle-burst",
+      "frames": 12,
+      "fps": 12,
+      "duration": 1100,
+      "loop": false,
+      "origin": [0.27, 0.25],
+      "defaultScale": 1,
+      "events": [
+        { "name": "fire_start", "frame": 2 },
+        { "name": "ember_peak", "frame": 6 },
+        { "name": "smoke_trail", "frame": 9 }
+      ]
+    },
+    "purple_dragon_fire": {
+      "type": "canvas-particle-burst",
+      "frames": 10,
+      "fps": 10,
+      "duration": 980,
+      "loop": false,
+      "origin": [0.78, 0.31],
+      "defaultScale": 0.85,
+      "events": [
+        { "name": "fire_start", "frame": 2 },
+        { "name": "ember_peak", "frame": 5 }
+      ]
+    },
+    "mecha_core_idle": {
+      "type": "canvas-light-rig",
+      "frames": 10,
+      "fps": 8,
+      "duration": 2200,
+      "loop": true,
+      "origin": [0.5, 0.42],
+      "defaultScale": 1,
+      "events": [
+        { "name": "beam_intensifies", "frame": 5 }
+      ]
+    },
+    "portal_storm": {
+      "type": "canvas-field",
+      "frames": 12,
+      "fps": 12,
+      "duration": 1800,
+      "loop": true,
+      "origin": [0.5, 0.15],
+      "defaultScale": 1,
+      "events": [
+        { "name": "sky_flash", "frame": 7 }
+      ]
+    },
+    "ogre_idle": {
+      "type": "background-anchored-overlay",
+      "frames": 6,
+      "fps": 4,
+      "duration": 1800,
+      "loop": true,
+      "origin": [0.82, 0.47],
+      "defaultScale": 1,
+      "events": [
+        { "name": "breath_peak", "frame": 3 }
+      ]
+    },
+    "slime_idle": {
+      "type": "canvas-squash-overlay",
+      "frames": 6,
+      "fps": 6,
+      "duration": 1200,
+      "loop": true,
+      "origin": [0.66, 0.62],
+      "defaultScale": 1,
+      "events": [
+        { "name": "hop", "frame": 2 }
+      ]
+    },
+    "environment_water": {
+      "type": "canvas-ripple",
+      "frames": 8,
+      "fps": 8,
+      "duration": 1600,
+      "loop": true,
+      "origin": [0.28, 0.75],
+      "defaultScale": 1,
+      "events": []
+    }
+  },
+  "fallbacks": {
+    "notes": "The supplied background already contains most creatures. Until clean cutouts are produced manually, creature body motion uses anchored overlays and synchronized effects instead of duplicated full-body sprites.",
+    "requiresManualReview": [
+      "full red dragon cutout",
+      "full purple dragon cutout",
+      "mecha body sprite sheet",
+      "ogre body sprite sheet",
+      "vampire and rabbit cutout"
+    ]
+  }
+}
