@@ -502,7 +502,7 @@
 
     .character-steps {
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
       gap: 10px;
     }
 
@@ -691,6 +691,78 @@
 
     .trait.danger {
       border-left-color: var(--danger);
+    }
+
+    .special-card {
+      border: 4px solid var(--line);
+      background:
+        repeating-linear-gradient(135deg, rgba(232, 77, 138, .18) 0 8px, rgba(155, 93, 229, .16) 8px 16px),
+        rgba(16, 12, 30, .92);
+      padding: 14px;
+      box-shadow: 4px 4px 0 rgba(0, 0, 0, .55);
+    }
+
+    .special-card.active {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 4px rgba(232, 77, 138, .25), 5px 5px 0 var(--line);
+    }
+
+    .special-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: flex-start;
+      color: var(--gold);
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+
+    .special-copy {
+      margin: 0 0 10px;
+      line-height: 1;
+      color: var(--bone);
+    }
+
+    .sheet-section {
+      border: 3px solid var(--line);
+      background: rgba(7, 5, 16, .38);
+      padding: 12px;
+      margin-top: 12px;
+    }
+
+    .sheet-section h3 {
+      margin: 0 0 8px;
+      color: var(--gold);
+      font-size: 24px;
+      line-height: 1;
+      font-weight: 400;
+    }
+
+    .ability-grid {
+      display: grid;
+      gap: 8px;
+    }
+
+    .ability {
+      border-left: 4px solid var(--cyan);
+      background: rgba(96, 215, 215, .08);
+      padding: 8px 10px;
+      line-height: 1;
+    }
+
+    .ability strong {
+      color: var(--bone);
+      font-weight: 400;
+    }
+
+    .ability.special {
+      border-left-color: var(--chaos);
+      background: rgba(232, 77, 138, .12);
+    }
+
+    .ability.danger {
+      border-left-color: var(--danger);
+      background: rgba(255, 82, 82, .1);
     }
 
     .summary-actions {
@@ -1044,6 +1116,11 @@
                 <h2 class="panel-title">Dossiê</h2>
                 <div id="char-detail" class="character-detail"></div>
               </section>
+
+              <section class="panel">
+                <h2 class="panel-title">Personagem especial</h2>
+                <div id="char-special"></div>
+              </section>
             </main>
 
             <aside class="panel">
@@ -1145,6 +1222,16 @@ const RL={comum:'Comum',incomum:'Incomum',raro:'Raro',lendário:'Lendário'};
     lendario: "lendário"
   };
 
+  const SPECIAL_CHARACTER = {
+    id: "special_fourth_wall_mason",
+    name: "Fourth Wall Mason",
+    label: "Personagem Especial",
+    chaos: 4,
+    unlock: "Reservado para quando o Mestre decidir que a parede já mentiu demais.",
+    ability: "Percebe padrões da narrativa, comentários fora de personagem e coincidências estatisticamente ofensivas.",
+    consequence: "Sempre que usar essa percepção, o KHAOS pessoal aumenta. Saber demais raramente melhora a ergonomia da alma."
+  };
+
   const Identity = {
     key: "ke_identity_v2",
     lastKey: "ke_last_session_v2",
@@ -1195,7 +1282,7 @@ const RL={comum:'Comum',incomum:'Incomum',raro:'Raro',lendário:'Lendário'};
     characters: [],
     character: null,
     history: [],
-    selected: { id: null, race: null, cls: null, sub: null },
+    selected: { id: null, race: null, cls: null, sub: null, special: false },
     channel: null,
     heartbeat: null
   };
@@ -1559,6 +1646,7 @@ const RL={comum:'Comum',incomum:'Incomum',raro:'Raro',lendário:'Lendário'};
       this.renderMeta();
       this.renderChoices();
       this.renderDetail();
+      this.renderSpecial();
       this.renderSummary();
     },
     renderSteps() {
@@ -1569,7 +1657,8 @@ const RL={comum:'Comum',incomum:'Incomum',raro:'Raro',lendário:'Lendário'};
         { label: "Nome", value: nameDone ? "definido" : "pendente", done: nameDone, active: !nameDone },
         { label: "Raça", value: S.selected.race?.nome || "pendente", done: !!S.selected.race, active: nameDone && !S.selected.race },
         { label: "Classe", value: S.selected.cls?.nome || "pendente", done: !!S.selected.cls, active: !!S.selected.race && !S.selected.cls },
-        { label: "Subclasse", value: S.selected.sub?.nome || "pendente", done: this.subOk() && !!S.selected.cls, active: !!S.selected.cls && !this.subOk() }
+        { label: "Subclasse", value: S.selected.sub?.nome || "pendente", done: this.subOk() && !!S.selected.cls, active: !!S.selected.cls && !this.subOk() },
+        { label: "Especial", value: S.selected.special ? SPECIAL_CHARACTER.name : "opcional", done: !!S.selected.special, active: false }
       ];
       el.innerHTML = steps.map((step) =>
         "<div class=\"step-chip " + (step.done ? "done" : step.active ? "active" : "") + "\">" +
@@ -1584,6 +1673,7 @@ const RL={comum:'Comum',incomum:'Incomum',raro:'Raro',lendário:'Lendário'};
       el.innerHTML = S.characters.map((ch) =>
         "<button class=\"saved-char " + (S.selected.id === ch.id ? "active" : "") + "\" onclick=\"Character.load('" + ch.id + "')\">" +
         "<strong>" + esc(ch.name) + "</strong><br><span class=\"muted tiny\">" + esc(ch.race_name) + " / " + esc(ch.class_name) + "</span>" +
+        (ch.data?.specialCharacter ? "<br><span class=\"badge gold\">Especial</span>" : "") +
         "</button>"
       ).join("") || "<div class=\"empty\">Nenhum personagem salvo ainda.</div>";
     },
@@ -1611,7 +1701,7 @@ const RL={comum:'Comum',incomum:'Incomum',raro:'Raro',lendário:'Lendário'};
       const desc = item.descricao || item.desc || item.traco || item.efeito || "";
       const meta = [
         item.raridade ? "<span class=\"badge\">" + esc(RARITY_LABEL[item.raridade] || item.raridade) + "</span>" : "",
-        item.mod_caos ? "<span class=\"badge gold\">CAOS +" + esc(item.mod_caos) + "</span>" : ""
+        item.mod_caos ? "<span class=\"badge gold\">KHAOS +" + esc(item.mod_caos) + "</span>" : ""
       ].join("");
       return "<button class=\"choice " + (active ? "active" : "") + "\" onclick=\"" + handler + "('" + item.id + "')\">" +
         "<div class=\"choice-name\"><strong>" + esc(item.nome) + "</strong></div>" +
@@ -1630,6 +1720,23 @@ const RL={comum:'Comum',incomum:'Incomum',raro:'Raro',lendário:'Lendário'};
       ];
       el.innerHTML = cards.join("");
     },
+    renderSpecial() {
+      const el = $("char-special");
+      if (!el) return;
+      const active = !!S.selected.special;
+      el.innerHTML =
+        "<div class=\"special-card " + (active ? "active" : "") + "\">" +
+        "<div class=\"special-title\"><strong>" + esc(SPECIAL_CHARACTER.name) + "</strong><span class=\"badge gold\">KHAOS +" + SPECIAL_CHARACTER.chaos + "</span></div>" +
+        "<p class=\"special-copy\">" + esc(SPECIAL_CHARACTER.unlock) + "</p>" +
+        "<div class=\"trait-list\">" +
+        "<div class=\"trait\"><strong>Habilidade especial</strong><br>" + esc(SPECIAL_CHARACTER.ability) + "</div>" +
+        "<div class=\"trait danger\"><strong>Custo narrativo</strong><br>" + esc(SPECIAL_CHARACTER.consequence) + "</div>" +
+        "</div>" +
+        "<button id=\"btn-special-toggle\" class=\"btn-pixel " + (active ? "danger" : "secondary") + "\" style=\"width:100%;margin-top:12px\" onclick=\"Character.toggleSpecial()\">" +
+        (active ? "Remover especial" : "Ativar especial") +
+        "</button>" +
+        "</div>";
+    },
     detailCard(title, item, traits) {
       if (!item) {
         return "<div class=\"detail-card\"><h3>" + title + "</h3><p class=\"muted\">Aguardando seleção.</p></div>";
@@ -1639,7 +1746,7 @@ const RL={comum:'Comum',incomum:'Incomum',raro:'Raro',lendário:'Lendário'};
         "<p>" + esc(short(item.descricao || item.desc || "", 180)) + "</p>" +
         "<div class=\"choice-meta\">" +
         (item.raridade ? "<span class=\"badge\">" + esc(RARITY_LABEL[item.raridade] || item.raridade) + "</span>" : "") +
-        (item.mod_caos ? "<span class=\"badge gold\">CAOS +" + esc(item.mod_caos) + "</span>" : "") +
+        (item.mod_caos ? "<span class=\"badge gold\">KHAOS +" + esc(item.mod_caos) + "</span>" : "") +
         "</div>" +
         "<div class=\"trait-list\">" + traits + "</div>" +
         "</div>";
@@ -1672,7 +1779,8 @@ const RL={comum:'Comum',incomum:'Incomum',raro:'Raro',lendário:'Lendário'};
         "<b>Raça</b><span>" + esc(S.selected.race?.nome || "-") + "</span>" +
         "<b>Classe</b><span>" + esc(S.selected.cls?.nome || "-") + "</span>" +
         "<b>Sub</b><span>" + esc(S.selected.sub?.nome || "-") + "</span>" +
-        "<b>CAOS</b><span style=\"color:" + (chaos >= 6 ? "var(--danger)" : chaos >= 3 ? "var(--amber)" : "var(--green)") + "\">" + chaos + "</span>" +
+        "<b>Especial</b><span>" + (S.selected.special ? esc(SPECIAL_CHARACTER.name) : "-") + "</span>" +
+        "<b>KHAOS</b><span style=\"color:" + (chaos >= 6 ? "var(--danger)" : chaos >= 3 ? "var(--amber)" : "var(--green)") + "\">" + chaos + "</span>" +
         "<b>Macros</b><span>" + this.macros().length + "</span>" +
         "</div>" +
         "<div class=\"chaos-meter\"><div class=\"chaos-fill\" style=\"width:" + clamp(chaos * 12, 4, 100) + "%\"></div></div>" +
@@ -1695,6 +1803,10 @@ const RL={comum:'Comum',incomum:'Incomum',raro:'Raro',lendário:'Lendário'};
       S.selected.id = null;
       this.render();
     },
+    toggleSpecial() {
+      S.selected.special = !S.selected.special;
+      this.render();
+    },
     load(id, announce = true) {
       const ch = S.characters.find((item) => item.id === id);
       if (!ch) return;
@@ -1702,12 +1814,13 @@ const RL={comum:'Comum',incomum:'Incomum',raro:'Raro',lendário:'Lendário'};
       S.selected.race = KE.racas.find((race) => race.id === ch.race_id) || null;
       S.selected.cls = KE.classes.find((cls) => cls.id === ch.class_id) || null;
       S.selected.sub = S.selected.cls?.subs?.find((sub) => sub.id === ch.sub_id) || null;
+      S.selected.special = ch.data?.specialCharacter?.id === SPECIAL_CHARACTER.id;
       $("char-name").value = ch.name || "";
       if (announce) UI.err("Personagem carregado. Tecnicamente, isso conta como apego.", "char-err");
       this.render();
     },
     newChar() {
-      S.selected = { id: null, race: null, cls: null, sub: null };
+      S.selected = { id: null, race: null, cls: null, sub: null, special: false };
       $("char-name").value = "";
       UI.err("", "char-err");
       this.render();
@@ -1716,7 +1829,7 @@ const RL={comum:'Comum',incomum:'Incomum',raro:'Raro',lendário:'Lendário'};
       return !S.selected.cls?.subs?.length || !!S.selected.sub;
     },
     chaos() {
-      return (S.selected.race?.mod_caos || 0) + (S.selected.cls?.mod_caos || 0) + (S.selected.sub?.mod_caos || 0);
+      return (S.selected.race?.mod_caos || 0) + (S.selected.cls?.mod_caos || 0) + (S.selected.sub?.mod_caos || 0) + (S.selected.special ? SPECIAL_CHARACTER.chaos : 0);
     },
     macros() {
       const macros = [];
@@ -1733,6 +1846,16 @@ const RL={comum:'Comum',incomum:'Incomum',raro:'Raro',lendário:'Lendário'};
       };
       (S.selected.cls?.habs || []).forEach((ability) => push(S.selected.cls.nome, ability));
       (S.selected.sub?.habs || []).forEach((ability) => push(S.selected.sub.nome, ability));
+      if (S.selected.special) {
+        macros.push({
+          name: SPECIAL_CHARACTER.name,
+          source: SPECIAL_CHARACTER.label,
+          dice: "1d20",
+          effect: SPECIAL_CHARACTER.ability,
+          trigger: "Quando a cena fica conveniente demais.",
+          consequence: SPECIAL_CHARACTER.consequence
+        });
+      }
       return macros.slice(0, 8);
     },
     async save() {
@@ -1744,16 +1867,19 @@ const RL={comum:'Comum',incomum:'Incomum',raro:'Raro',lendário:'Lendário'};
       }
       UI.err("", "char-err");
       UI.conn("working", "salvando ficha");
-      const data = {
-        schemaVersion: 1,
-        stats: {},
-        skills: [],
-        macros: this.macros(),
-        inventory: [],
-        notes: "",
-        source: "khaos_effect_legacy_data"
-      };
       const existing = S.selected.id ? S.characters.find((item) => item.id === S.selected.id) : null;
+      const existingData = existing?.data || {};
+      const data = {
+        ...existingData,
+        schemaVersion: 1,
+        stats: existingData.stats || {},
+        skills: existingData.skills || [],
+        macros: this.macros(),
+        inventory: existingData.inventory || [],
+        notes: existingData.notes || "",
+        source: "khaos_effect_legacy_data",
+        specialCharacter: S.selected.special ? SPECIAL_CHARACTER : null
+      };
       const payload = {
         campaign_id: S.room?.campaign_id || null,
         owner_key: S.pkey,
@@ -1868,6 +1994,11 @@ const RL={comum:'Comum',incomum:'Incomum',raro:'Raro',lendário:'Lendário'};
         return;
       }
       const data = S.character.data || {};
+      const race = KE.racas.find((item) => item.id === S.character.race_id) || null;
+      const cls = KE.classes.find((item) => item.id === S.character.class_id) || null;
+      const sub = cls?.subs?.find((item) => item.id === S.character.sub_id) || null;
+      const personalChaos = clamp(Number(S.character.chaos_base || 0), 0, 100);
+      const special = data.specialCharacter || null;
       $("game-sheet").innerHTML =
         "<div class=\"sheet-title\">" + esc(S.character.name) + "</div>" +
         "<div class=\"muted\">" + esc(S.character.race_name) + " / " + esc(S.character.class_name) + (S.character.sub_name ? " / " + esc(S.character.sub_name) : "") + "</div>" +
@@ -1875,12 +2006,45 @@ const RL={comum:'Comum',incomum:'Incomum',raro:'Raro',lendário:'Lendário'};
         "<b>Nível</b><span>" + esc(S.character.level || 1) + "</span>" +
         "<b>XP</b><span>" + esc(S.character.xp || 0) + "</span>" +
         "<b>HP</b><span>" + esc(S.character.hp || 80) + "/" + esc(S.character.max_hp || 80) + "</span>" +
-        "<b>CAOS base</b><span>" + esc(S.character.chaos_base || 0) + "</span>" +
-        "</div>";
+        "<b>KHAOS</b><span>" + esc(personalChaos) + "</span>" +
+        "<b>Especial</b><span>" + (special ? esc(special.name) : "-") + "</span>" +
+        "</div>" +
+        "<div class=\"sheet-section\"><h3>KHAOS pessoal</h3><div class=\"chaos-meter\"><div class=\"chaos-fill\" style=\"width:" + clamp(personalChaos * 12, 4, 100) + "%\"></div></div><p class=\"muted tiny\">Medidor do personagem. O da sala continua sendo o desastre coletivo.</p></div>" +
+        "<div class=\"sheet-section\"><h3>Estrutura</h3><div class=\"summary-kv\">" +
+        "<b>Raça</b><span>" + esc(S.character.race_name) + "</span>" +
+        "<b>Classe</b><span>" + esc(S.character.class_name) + "</span>" +
+        "<b>Sub</b><span>" + esc(S.character.sub_name || "-") + "</span>" +
+        "</div></div>" +
+        this.sheetAbilities(race, cls, sub, special);
       const macros = data.macros || [];
       $("macro-grid").innerHTML = macros.map((macro, index) =>
         "<button class=\"macro\" onclick=\"Game.rollMacro(" + index + ")\"><strong>" + esc(macro.name) + "</strong><br><span class=\"muted tiny\">" + esc(short(macro.effect, 86)) + "</span></button>"
       ).join("") || "<div class=\"empty\">Macros aparecerão aqui conforme a ficha ganhar dentes.</div>";
+    },
+    sheetAbilities(race, cls, sub, special) {
+      const raceAbilities = race ? [
+        { name: race.traco_nome || "Traço racial", text: race.traco || "" },
+        { name: race.limit_nome || "Limitação racial", text: race.limit || "", danger: true }
+      ] : [];
+      const classAbilities = [
+        ...((cls?.habs || []).map((hab) => ({ name: hab.nome, text: hab.efeito || hab.poder || "" }))),
+        ...((sub?.habs || []).map((hab) => ({ name: hab.nome, text: hab.efeito || hab.poder || "", source: sub.nome })))
+      ];
+      const specialAbilities = special ? [{ name: special.name, text: special.ability, special: true }, { name: "Custo", text: special.consequence, danger: true, special: true }] : [];
+      return "<div class=\"sheet-section\"><h3>Habilidades de raça</h3>" + this.abilityList(raceAbilities) + "</div>" +
+        "<div class=\"sheet-section\"><h3>Habilidades de classe</h3>" + this.abilityList(classAbilities) + "</div>" +
+        "<div class=\"sheet-section\"><h3>Personagem especial</h3>" + (special ? this.abilityList(specialAbilities) : "<div class=\"empty\">Nenhum especial ativado para esta ficha.</div>") + "</div>";
+    },
+    abilityList(items) {
+      const valid = items.filter((item) => item.name || item.text);
+      if (!valid.length) return "<div class=\"empty\">Nada registrado ainda.</div>";
+      return "<div class=\"ability-grid\">" + valid.map((item) =>
+        "<div class=\"ability " + (item.special ? "special" : item.danger ? "danger" : "") + "\">" +
+        "<strong>" + esc(item.name || "Habilidade") + "</strong>" +
+        (item.source ? "<span class=\"badge\">" + esc(item.source) + "</span>" : "") +
+        "<br><span class=\"muted\">" + esc(short(item.text || "", 210)) + "</span>" +
+        "</div>"
+      ).join("") + "</div>";
     },
     refreshRoom() {
       const chaos = clamp(Number(S.room?.chaos || 0), 0, 100);

@@ -42,6 +42,21 @@ Preview visual:
 - Renomeado mapa local de raridade para evitar colisao runtime com constantes do `data.js`.
 - Validador reforcado para parsear dados canonicos e script da app juntos, capturando colisoes de identificadores.
 
+## Atualizacao — ficha com sistema e especial
+
+- Biblioteca de personagens salvos agora destaca fichas com personagem especial.
+- Fluxo de criacao ganhou etapa opcional `Especial`.
+- Adicionado painel `Personagem especial` com `Fourth Wall Mason` como overlay especial, sem alterar a lista canonica de 13 classes.
+- O especial e salvo em `characters.data.specialCharacter`.
+- O KHAOS pessoal passa a somar raca + classe + subclasse + especial.
+- A ficha da mesa agora exibe:
+  - estrutura escolhida: raca, classe e subclasse;
+  - medidor de KHAOS pessoal;
+  - habilidades de raca;
+  - habilidades de classe/subclasse;
+  - bloco do personagem especial;
+  - macros derivadas da classe, subclasse e especial.
+
 ## Validado localmente
 
 - Build gerado com dados canonicos intactos.
