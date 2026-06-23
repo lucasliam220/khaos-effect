@@ -47,8 +47,12 @@ Preview visual:
 - Biblioteca de personagens salvos agora destaca fichas com personagem especial.
 - Fluxo de criacao ganhou etapa opcional `Especial`.
 - Adicionado painel `Personagem especial` com `Fourth Wall Mason` como overlay especial, sem alterar a lista canonica de 13 classes.
-- O especial e salvo em `characters.data.specialCharacter`.
-- O KHAOS pessoal passa a somar raca + classe + subclasse + especial.
+- O especial agora possui dois estados separados:
+  - `characters.data.specialUnlock`: permissao concedida pelo Mestre;
+  - `characters.data.specialCharacter`: especial ativado pelo jogador na ficha.
+- O Mestre pode liberar ou revogar o especial pela lista de jogadores quando a ficha ja existe.
+- O jogador so consegue ativar e salvar o especial se o Mestre tiver liberado a ficha.
+- O KHAOS pessoal passa a somar raca + classe + subclasse + especial apenas quando o especial esta ativo.
 - A ficha da mesa agora exibe:
   - estrutura escolhida: raca, classe e subclasse;
   - medidor de KHAOS pessoal;

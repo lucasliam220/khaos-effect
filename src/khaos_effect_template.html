@@ -460,6 +460,35 @@
       white-space: nowrap;
     }
 
+    .player-tags {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 6px;
+    }
+
+    .mini-master-btn {
+      border: 2px solid var(--line);
+      background: rgba(254, 178, 62, .16);
+      color: var(--gold);
+      font-family: "Press Start 2P", monospace;
+      font-size: 7px;
+      line-height: 1.2;
+      padding: 6px 8px;
+      cursor: pointer;
+      text-transform: uppercase;
+    }
+
+    .mini-master-btn.danger {
+      background: rgba(255, 77, 109, .14);
+      color: var(--danger);
+    }
+
+    .mini-master-btn:disabled {
+      cursor: not-allowed;
+      opacity: .55;
+    }
+
     .badge {
       display: inline-flex;
       align-items: center;
@@ -1229,6 +1258,33 @@
     consequence: "Sempre que usar essa percepção, o KHAOS pessoal aumenta. Saber demais raramente melhora a ergonomia da alma."
   };
 
+  const characterData = (character) => {
+    let data = character?.data || {};
+    if (typeof data === "string") {
+      try { data = JSON.parse(data); } catch { data = {}; }
+    }
+    return data && typeof data === "object" ? data : {};
+  };
+  const specialActive = (character) => characterData(character).specialCharacter?.id === SPECIAL_CHARACTER.id;
+  const specialUnlocked = (character) => {
+    const data = characterData(character);
+    return data.specialUnlock?.id === SPECIAL_CHARACTER.id || data.specialCharacter?.id === SPECIAL_CHARACTER.id;
+  };
+  const specialUnlockPayload = () => ({
+    id: SPECIAL_CHARACTER.id,
+    name: SPECIAL_CHARACTER.name,
+    by: S.name || Identity.name || "Mestre",
+    by_key: S.pkey,
+    at: nowIso(),
+    reason: SPECIAL_CHARACTER.unlock
+  });
+  const characterChaosBase = (character, hasSpecial) => {
+    const race = KE.racas.find((item) => item.id === character?.race_id) || null;
+    const cls = KE.classes.find((item) => item.id === character?.class_id) || null;
+    const sub = cls?.subs?.find((item) => item.id === character?.sub_id) || null;
+    return (race?.mod_caos || 0) + (cls?.mod_caos || 0) + (sub?.mod_caos || 0) + (hasSpecial ? SPECIAL_CHARACTER.chaos : 0);
+  };
+
   const Identity = {
     key: "ke_identity_v2",
     lastKey: "ke_last_session_v2",
@@ -1275,6 +1331,7 @@
     room: null,
     player: null,
     players: [],
+    roomCharacters: {},
     isMaster: false,
     characters: [],
     character: null,
@@ -1512,7 +1569,25 @@
         .select("*")
         .eq("room_id", S.room.id)
         .order("created_at", { ascending: true });
-      if (!error) S.players = data || [];
+      if (!error) {
+        S.players = data || [];
+        await this.fetchRoomCharacters();
+      }
+    },
+    async fetchRoomCharacters() {
+      if (!sb) return;
+      const ids = S.players.map((player) => player.character_id).filter(Boolean);
+      if (!ids.length) {
+        S.roomCharacters = {};
+        return;
+      }
+      const { data, error } = await sb
+        .from("khaos_characters")
+        .select("id,name,data,chaos_base,race_id,class_id,sub_id")
+        .in("id", ids);
+      if (!error) {
+        S.roomCharacters = Object.fromEntries((data || []).map((character) => [character.id, character]));
+      }
     },
     async fetchRoom() {
       if (!S.room || !sb) return;
@@ -1533,12 +1608,59 @@
       Identity.saveLast();
       await Character.enter();
     },
+    async setSpecialUnlock(playerId, enabled) {
+      if (!S.isMaster) return;
+      const player = S.players.find((item) => item.id === playerId);
+      if (!player?.character_id) return;
+      await this.setCharacterSpecialUnlock(player.character_id, enabled, player.name);
+    },
+    async setCharacterSpecialUnlock(characterId, enabled, label = "personagem") {
+      if (!S.isMaster || !sb) return;
+      UI.conn("working", enabled ? "liberando especial" : "revogando especial");
+      const { data: character, error: fetchError } = await sb
+        .from("khaos_characters")
+        .select("id,name,data,chaos_base,race_id,class_id,sub_id")
+        .eq("id", characterId)
+        .maybeSingle();
+      if (fetchError || !character) return this.fail(fetchError, "Não consegui localizar a ficha.");
+
+      const data = characterData(character);
+      if (enabled) {
+        data.specialUnlock = specialUnlockPayload();
+      } else {
+        delete data.specialUnlock;
+        delete data.specialCharacter;
+        data.macros = (data.macros || []).filter((macro) => macro?.name !== SPECIAL_CHARACTER.name);
+      }
+      const nextChaos = characterChaosBase(character, !!data.specialCharacter);
+      const { data: updated, error } = await sb
+        .from("khaos_characters")
+        .update({ data, chaos_base: nextChaos })
+        .eq("id", character.id)
+        .select("id,name,data,chaos_base,race_id,class_id,sub_id")
+        .single();
+      if (error) return this.fail(error, "Não consegui atualizar o especial.");
+
+      S.roomCharacters[updated.id] = updated;
+      if (S.character?.id === updated.id) S.character = { ...S.character, ...updated };
+      await this.fetchPlayers();
+      Lobby.refresh();
+      if ($("s-character")?.classList.contains("active")) {
+        await Character.fetch();
+        if (S.selected.id === updated.id) Character.load(updated.id, false);
+        Character.render();
+      }
+      if ($("s-game")?.classList.contains("active")) Game.render();
+      await History.insert("especial", "ESPECIAL", (enabled ? "Mestre liberou " : "Mestre revogou ") + SPECIAL_CHARACTER.name + " para " + (character.name || label) + ".");
+      UI.conn("online", "ao vivo");
+    },
     async leave() {
       Live.unsubscribe();
       Identity.clearLast();
       S.room = null;
       S.player = null;
       S.players = [];
+      S.roomCharacters = {};
       S.character = null;
       S.isMaster = false;
       UI.show("s-entry");
@@ -1572,6 +1694,14 @@
         .on("postgres_changes", { event: "INSERT", schema: "public", table: "khaos_history", filter: "room_id=eq." + roomId }, (payload) => {
           if (payload.new) History.addLocal(payload.new);
         })
+        .on("postgres_changes", { event: "*", schema: "public", table: "khaos_characters", filter: "owner_key=eq." + S.pkey }, async () => {
+          await Character.fetch();
+          if (S.character?.id) {
+            S.character = S.characters.find((character) => character.id === S.character.id) || S.character;
+          }
+          if ($("s-character")?.classList.contains("active")) Character.render();
+          if ($("s-game")?.classList.contains("active")) Game.render();
+        })
         .subscribe((status) => {
           UI.conn(status === "SUBSCRIBED" ? "online" : "working", status === "SUBSCRIBED" ? "ao vivo" : "conectando");
         });
@@ -1604,14 +1734,21 @@
       $("player-count").textContent = String(S.players.length);
       $("players").innerHTML = S.players.map((p) => {
         const isOnline = online(p);
+        const character = p.character_id ? S.roomCharacters[p.character_id] : null;
+        const unlocked = character ? specialUnlocked(character) : false;
+        const active = character ? specialActive(character) : false;
         const tags = [
           p.is_master ? "<span class=\"badge gold\">Mestre</span>" : "",
-          p.character_id ? "<span class=\"badge green\">Ficha</span>" : "<span class=\"badge\">Sem ficha</span>"
+          p.character_id ? "<span class=\"badge green\">Ficha</span>" : "<span class=\"badge\">Sem ficha</span>",
+          active ? "<span class=\"badge gold\">Especial ativo</span>" : unlocked ? "<span class=\"badge gold\">Especial liberado</span>" : ""
         ].join("");
+        const specialControl = S.isMaster && p.character_id
+          ? "<button class=\"mini-master-btn " + (unlocked ? "danger" : "") + "\" onclick=\"Rooms.setSpecialUnlock('" + p.id + "', " + (!unlocked) + ")\">" + (unlocked ? "Revogar" : "Liberar") + "</button>"
+          : "";
         return "<div class=\"player " + (isOnline ? "online" : "") + "\">" +
           "<span class=\"player-dot\"></span>" +
           "<span class=\"player-name\">" + esc(p.name) + "</span>" +
-          "<span>" + tags + "</span>" +
+          "<span class=\"player-tags\">" + tags + specialControl + "</span>" +
           "</div>";
       }).join("") || "<div class=\"empty\">Nenhum jogador visível. Assustadoramente organizado.</div>";
     }
@@ -1637,6 +1774,13 @@
         .order("created_at", { ascending: false });
       if (!error) S.characters = data || [];
     },
+    selectedCharacter() {
+      if (!S.selected.id) return null;
+      return S.characters.find((character) => character.id === S.selected.id) || (S.character?.id === S.selected.id ? S.character : null);
+    },
+    selectedSpecialUnlocked() {
+      return specialUnlocked(this.selectedCharacter());
+    },
     render() {
       this.renderSteps();
       this.renderSaved();
@@ -1650,12 +1794,13 @@
       const el = $("char-steps");
       if (!el) return;
       const nameDone = !!$("char-name")?.value.trim();
+      const unlocked = this.selectedSpecialUnlocked();
       const steps = [
         { label: "Nome", value: nameDone ? "definido" : "pendente", done: nameDone, active: !nameDone },
         { label: "Raça", value: S.selected.race?.nome || "pendente", done: !!S.selected.race, active: nameDone && !S.selected.race },
         { label: "Classe", value: S.selected.cls?.nome || "pendente", done: !!S.selected.cls, active: !!S.selected.race && !S.selected.cls },
         { label: "Subclasse", value: S.selected.sub?.nome || "pendente", done: this.subOk() && !!S.selected.cls, active: !!S.selected.cls && !this.subOk() },
-        { label: "Especial", value: S.selected.special ? SPECIAL_CHARACTER.name : "opcional", done: !!S.selected.special, active: false }
+        { label: "Especial", value: S.selected.special ? SPECIAL_CHARACTER.name : unlocked ? "liberado" : "bloqueado", done: !!S.selected.special, active: unlocked && !S.selected.special }
       ];
       el.innerHTML = steps.map((step) =>
         "<div class=\"step-chip " + (step.done ? "done" : step.active ? "active" : "") + "\">" +
@@ -1667,12 +1812,14 @@
     renderSaved() {
       const el = $("char-saved");
       if (!el) return;
-      el.innerHTML = S.characters.map((ch) =>
-        "<button class=\"saved-char " + (S.selected.id === ch.id ? "active" : "") + "\" onclick=\"Character.load('" + ch.id + "')\">" +
-        "<strong>" + esc(ch.name) + "</strong><br><span class=\"muted tiny\">" + esc(ch.race_name) + " / " + esc(ch.class_name) + "</span>" +
-        (ch.data?.specialCharacter ? "<br><span class=\"badge gold\">Especial</span>" : "") +
-        "</button>"
-      ).join("") || "<div class=\"empty\">Nenhum personagem salvo ainda.</div>";
+      el.innerHTML = S.characters.map((ch) => {
+        const active = specialActive(ch);
+        const unlocked = specialUnlocked(ch);
+        return "<button class=\"saved-char " + (S.selected.id === ch.id ? "active" : "") + "\" onclick=\"Character.load('" + ch.id + "')\">" +
+          "<strong>" + esc(ch.name) + "</strong><br><span class=\"muted tiny\">" + esc(ch.race_name) + " / " + esc(ch.class_name) + "</span>" +
+          (active ? "<br><span class=\"badge gold\">Especial ativo</span>" : unlocked ? "<br><span class=\"badge gold\">Especial liberado</span>" : "") +
+          "</button>";
+      }).join("") || "<div class=\"empty\">Nenhum personagem salvo ainda.</div>";
     },
     renderMeta() {
       const el = $("char-current-meta");
@@ -1721,17 +1868,26 @@
       const el = $("char-special");
       if (!el) return;
       const active = !!S.selected.special;
+      const unlocked = this.selectedSpecialUnlocked();
+      const canToggle = unlocked || active;
+      const status = active ? "Ativo na ficha" : unlocked ? "Liberado pelo Mestre" : "Bloqueado pelo Mestre";
+      const toggleButton = canToggle
+        ? "<button id=\"btn-special-toggle\" class=\"btn-pixel " + (active ? "danger" : "secondary") + "\" style=\"width:100%;margin-top:12px\" onclick=\"Character.toggleSpecial()\">" + (active ? "Remover especial" : "Ativar especial") + "</button>"
+        : "<button id=\"btn-special-toggle\" class=\"btn-pixel secondary\" style=\"width:100%;margin-top:12px\" disabled>Aguardando Mestre</button>";
+      const masterButton = S.isMaster && S.selected.id
+        ? "<button class=\"btn-pixel ghost\" style=\"width:100%;margin-top:8px\" onclick=\"Character.masterSetSpecialUnlock(" + (!unlocked) + ")\">Mestre: " + (unlocked ? "revogar desbloqueio" : "liberar nesta ficha") + "</button>"
+        : "";
       el.innerHTML =
         "<div class=\"special-card " + (active ? "active" : "") + "\">" +
         "<div class=\"special-title\"><strong>" + esc(SPECIAL_CHARACTER.name) + "</strong><span class=\"badge gold\">KHAOS +" + SPECIAL_CHARACTER.chaos + "</span></div>" +
         "<p class=\"special-copy\">" + esc(SPECIAL_CHARACTER.unlock) + "</p>" +
+        "<div class=\"choice-meta\"><span class=\"badge " + (active || unlocked ? "gold" : "") + "\">" + esc(status) + "</span></div>" +
         "<div class=\"trait-list\">" +
         "<div class=\"trait\"><strong>Habilidade especial</strong><br>" + esc(SPECIAL_CHARACTER.ability) + "</div>" +
         "<div class=\"trait danger\"><strong>Custo narrativo</strong><br>" + esc(SPECIAL_CHARACTER.consequence) + "</div>" +
         "</div>" +
-        "<button id=\"btn-special-toggle\" class=\"btn-pixel " + (active ? "danger" : "secondary") + "\" style=\"width:100%;margin-top:12px\" onclick=\"Character.toggleSpecial()\">" +
-        (active ? "Remover especial" : "Ativar especial") +
-        "</button>" +
+        toggleButton +
+        masterButton +
         "</div>";
     },
     detailCard(title, item, traits) {
@@ -1771,12 +1927,13 @@
     },
     renderSummary() {
       const chaos = this.chaos();
+      const unlocked = this.selectedSpecialUnlocked();
       $("char-summary").innerHTML =
         "<div class=\"summary-kv\">" +
         "<b>Raça</b><span>" + esc(S.selected.race?.nome || "-") + "</span>" +
         "<b>Classe</b><span>" + esc(S.selected.cls?.nome || "-") + "</span>" +
         "<b>Sub</b><span>" + esc(S.selected.sub?.nome || "-") + "</span>" +
-        "<b>Especial</b><span>" + (S.selected.special ? esc(SPECIAL_CHARACTER.name) : "-") + "</span>" +
+        "<b>Especial</b><span>" + (S.selected.special ? esc(SPECIAL_CHARACTER.name) : unlocked ? "liberado" : "-") + "</span>" +
         "<b>KHAOS</b><span style=\"color:" + (chaos >= 6 ? "var(--danger)" : chaos >= 3 ? "var(--amber)" : "var(--green)") + "\">" + chaos + "</span>" +
         "<b>Macros</b><span>" + this.macros().length + "</span>" +
         "</div>" +
@@ -1801,8 +1958,17 @@
       this.render();
     },
     toggleSpecial() {
+      if (!S.selected.special && !this.selectedSpecialUnlocked()) {
+        UI.err("O Mestre precisa liberar o personagem especial para esta ficha.", "char-err");
+        return;
+      }
+      UI.err("", "char-err");
       S.selected.special = !S.selected.special;
       this.render();
+    },
+    async masterSetSpecialUnlock(enabled) {
+      if (!S.isMaster || !S.selected.id) return;
+      await Rooms.setCharacterSpecialUnlock(S.selected.id, enabled, $("char-name").value.trim() || "esta ficha");
     },
     load(id, announce = true) {
       const ch = S.characters.find((item) => item.id === id);
@@ -1811,7 +1977,7 @@
       S.selected.race = KE.racas.find((race) => race.id === ch.race_id) || null;
       S.selected.cls = KE.classes.find((cls) => cls.id === ch.class_id) || null;
       S.selected.sub = S.selected.cls?.subs?.find((sub) => sub.id === ch.sub_id) || null;
-      S.selected.special = ch.data?.specialCharacter?.id === SPECIAL_CHARACTER.id;
+      S.selected.special = specialActive(ch);
       $("char-name").value = ch.name || "";
       if (announce) UI.err("Personagem carregado. Tecnicamente, isso conta como apego.", "char-err");
       this.render();
@@ -1864,8 +2030,17 @@
       }
       UI.err("", "char-err");
       UI.conn("working", "salvando ficha");
-      const existing = S.selected.id ? S.characters.find((item) => item.id === S.selected.id) : null;
-      const existingData = existing?.data || {};
+      let existing = S.selected.id ? S.characters.find((item) => item.id === S.selected.id) : null;
+      if (S.selected.id) {
+        const fresh = await sb.from("khaos_characters").select("*").eq("id", S.selected.id).maybeSingle();
+        if (!fresh.error && fresh.data) existing = fresh.data;
+      }
+      const existingData = characterData(existing);
+      if (S.selected.special && !specialUnlocked(existing)) {
+        UI.conn("online", "ao vivo");
+        return UI.err("O Mestre ainda não liberou o personagem especial para esta ficha.", "char-err");
+      }
+      const specialUnlock = existingData.specialUnlock || (existingData.specialCharacter?.id === SPECIAL_CHARACTER.id ? specialUnlockPayload() : null);
       const data = {
         ...existingData,
         schemaVersion: 1,
@@ -1875,6 +2050,7 @@
         inventory: existingData.inventory || [],
         notes: existingData.notes || "",
         source: "khaos_effect_legacy_data",
+        specialUnlock,
         specialCharacter: S.selected.special ? SPECIAL_CHARACTER : null
       };
       const payload = {
@@ -1990,7 +2166,7 @@
         $("macro-grid").innerHTML = "";
         return;
       }
-      const data = S.character.data || {};
+      const data = characterData(S.character);
       const race = KE.racas.find((item) => item.id === S.character.race_id) || null;
       const cls = KE.classes.find((item) => item.id === S.character.class_id) || null;
       const sub = cls?.subs?.find((item) => item.id === S.character.sub_id) || null;
@@ -2055,7 +2231,7 @@
       await History.insert("roll", "D" + sides, who + " rolou D" + sides + " = " + result);
     },
     async rollMacro(index) {
-      const macro = S.character?.data?.macros?.[index];
+      const macro = characterData(S.character).macros?.[index];
       if (!macro) return;
       const result = 1 + Math.floor(Math.random() * 20);
       await History.insert("macro", "D20", S.character.name + " usou " + macro.name + " = " + result);
