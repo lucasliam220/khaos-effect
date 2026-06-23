@@ -68,6 +68,21 @@ Preview visual:
 - Renomeado mapa local de raridade para evitar colisao runtime com constantes do `data.js`.
 - Validador reforcado para parsear dados canonicos e script da app juntos, capturando colisoes de identificadores.
 
+## Atualizacao — menu de selecao de personagem
+
+- Tela `s-character` redesenhada no estilo RPG 16-bit da referencia enviada pelo Lucas, adaptada ao tom de Khaos Effect.
+- Adicionado fundo em pixel art com HUD superior, contadores canonicos e menu lateral.
+- Painel central `Selecionar Personagem` agora organiza:
+  - biblioteca de fichas salvas;
+  - nome do personagem;
+  - abas horizontais de classe;
+  - selecao de raca e subclasse;
+  - retrato em pixel art procedural;
+  - barras de atributo derivadas das escolhas;
+  - habilidades/macros previstas;
+  - personalizacao/resumo da ficha.
+- O fluxo funcional original foi preservado: IDs, selecao de raca/classe/subclasse, especial, salvamento e vinculo do personagem continuam os mesmos.
+
 ## Atualizacao — ficha com sistema e especial
 
 - Biblioteca de personagens salvos agora destaca fichas com personagem especial.

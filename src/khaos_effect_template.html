@@ -74,7 +74,8 @@
       display: block;
     }
 
-    body[data-screen="s-cover"] .conn {
+    body[data-screen="s-cover"] .conn,
+    body[data-screen="s-character"] .conn {
       display: none;
     }
 
@@ -847,6 +848,539 @@
       background: rgba(255, 207, 74, .18);
     }
 
+    .character-menu-screen {
+      background: #07101d;
+    }
+
+    .character-menu-screen .forest,
+    .character-menu-screen .fireflies {
+      opacity: 0;
+    }
+
+    .character-scene-bg,
+    .character-scene-vignette {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .character-scene-bg {
+      z-index: 0;
+      background:
+        linear-gradient(180deg, rgba(80, 166, 255, .24), rgba(9, 12, 22, .05) 36%, rgba(6, 7, 14, .54) 100%),
+        url("assets/title-screen/background.png") center / cover no-repeat;
+      image-rendering: pixelated;
+      filter: brightness(1.16) saturate(1.12);
+      transform: scale(1.015);
+    }
+
+    .character-scene-vignette {
+      z-index: 1;
+      background:
+        linear-gradient(90deg, rgba(0,0,0,.52), transparent 21%, transparent 79%, rgba(0,0,0,.48)),
+        linear-gradient(180deg, rgba(1,4,11,.08), rgba(1,4,11,.12) 48%, rgba(1,4,11,.68)),
+        repeating-linear-gradient(0deg, rgba(255,255,255,.028) 0 1px, transparent 1px 4px);
+    }
+
+    .character-hud {
+      position: absolute;
+      inset: 10px 12px auto 12px;
+      z-index: 4;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      pointer-events: none;
+    }
+
+    .hud-plaque,
+    .hud-counters {
+      pointer-events: auto;
+      border: 3px solid var(--line);
+      background: linear-gradient(180deg, rgba(28, 22, 23, .94), rgba(8, 8, 12, .94));
+      box-shadow: inset 0 0 0 2px rgba(255, 207, 74, .18), 4px 4px 0 rgba(0,0,0,.5);
+      color: var(--gold);
+      min-height: 40px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 12px;
+      font-family: "Press Start 2P", monospace;
+      font-size: 11px;
+      line-height: 1.2;
+      text-shadow: 2px 2px 0 var(--line);
+    }
+
+    .hud-menu-button {
+      width: 30px;
+      height: 24px;
+      border: 2px solid var(--gold);
+      background: rgba(255, 207, 74, .12);
+      position: relative;
+      flex: 0 0 auto;
+    }
+
+    .hud-menu-button::before,
+    .hud-menu-button::after,
+    .hud-menu-button span {
+      content: "";
+      position: absolute;
+      left: 6px;
+      right: 6px;
+      height: 3px;
+      background: var(--gold);
+      box-shadow: 1px 1px 0 var(--line);
+    }
+
+    .hud-menu-button::before { top: 5px; }
+    .hud-menu-button span { top: 10px; }
+    .hud-menu-button::after { top: 15px; }
+
+    .hud-counters {
+      color: var(--bone);
+      font-size: 10px;
+    }
+
+    .hud-counter {
+      color: var(--bone);
+      white-space: nowrap;
+    }
+
+    .hud-counter b {
+      color: var(--gold);
+      font-weight: 400;
+    }
+
+    .character-side-nav {
+      position: absolute;
+      z-index: 4;
+      top: 128px;
+      left: 8px;
+      width: 132px;
+      display: grid;
+      gap: 5px;
+    }
+
+    .character-side-nav button {
+      min-height: 36px;
+      border: 2px solid rgba(255, 207, 74, .45);
+      background: rgba(8, 8, 12, .78);
+      color: var(--bone);
+      display: grid;
+      grid-template-columns: 22px 1fr;
+      gap: 8px;
+      align-items: center;
+      padding: 7px 9px;
+      text-align: left;
+      box-shadow: 3px 3px 0 rgba(0,0,0,.5);
+      font-size: 18px;
+    }
+
+    .character-side-nav button.active {
+      color: var(--gold);
+      background: rgba(255, 207, 74, .14);
+      border-color: var(--gold);
+    }
+
+    .nav-glyph {
+      width: 18px;
+      height: 18px;
+      display: inline-grid;
+      place-items: center;
+      border: 2px solid var(--gold);
+      color: var(--gold);
+      font-size: 13px;
+      line-height: 1;
+    }
+
+    .character-menu-stage {
+      position: relative;
+      z-index: 3;
+      min-height: 100dvh;
+      display: grid;
+      align-items: end;
+      justify-items: center;
+      padding: 84px 156px 34px;
+    }
+
+    .character-menu-frame {
+      width: min(960px, 100%);
+      max-height: calc(100dvh - 118px);
+      overflow: auto;
+      border: 4px solid var(--line);
+      background: linear-gradient(180deg, rgba(29, 23, 18, .95), rgba(12, 10, 10, .96));
+      box-shadow:
+        inset 0 0 0 3px rgba(255, 207, 74, .16),
+        0 0 0 3px rgba(255, 207, 74, .28),
+        14px 14px 0 rgba(0, 0, 0, .52);
+    }
+
+    .character-frame-title {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      padding: 8px 14px 10px;
+      border-bottom: 4px solid var(--line);
+      background: linear-gradient(180deg, rgba(13, 13, 15, .94), rgba(25, 20, 15, .94));
+      text-align: center;
+    }
+
+    .character-frame-title h1 {
+      margin: 0;
+      color: var(--gold);
+      font-family: "Press Start 2P", monospace;
+      font-size: 14px;
+      line-height: 1.4;
+      text-shadow: 3px 3px 0 var(--line);
+      text-transform: uppercase;
+    }
+
+    .character-menu-frame .character-steps {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 6px;
+    }
+
+    .character-menu-frame .step-chip {
+      min-height: 38px;
+      border-width: 2px;
+      box-shadow: none;
+      padding: 6px 8px;
+      background: rgba(0, 0, 0, .28);
+    }
+
+    .character-menu-frame .step-chip .tiny {
+      font-size: 14px;
+    }
+
+    .character-menu-frame .step-chip strong {
+      font-size: 17px;
+    }
+
+    .character-menu-frame .creator,
+    .character-menu-frame .character-shell {
+      grid-template-columns: minmax(150px, 180px) minmax(0, 1fr) minmax(270px, 330px);
+      gap: 10px;
+      padding: 12px;
+    }
+
+    .character-menu-frame .panel {
+      border-width: 3px;
+      background: rgba(17, 13, 12, .76);
+      box-shadow: inset 0 0 0 2px rgba(255,255,255,.035);
+      padding: 11px;
+    }
+
+    .character-library .saved-list {
+      max-height: 332px;
+    }
+
+    .character-main .field {
+      margin-bottom: 0;
+    }
+
+    .character-menu-frame .identity-strip {
+      grid-template-columns: 1fr;
+    }
+
+    .character-menu-frame #char-current-meta {
+      display: none;
+    }
+
+    .character-main .input-pixel {
+      min-height: 44px;
+      background: rgba(8, 8, 12, .86);
+    }
+
+    .class-tabs-panel {
+      padding-bottom: 8px;
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    .class-tabs {
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+      max-height: none;
+      overflow-x: auto;
+      overflow-y: hidden;
+      display: flex;
+      gap: 5px;
+      padding: 0 0 4px;
+    }
+
+    .class-tabs .choice {
+      flex: 0 0 112px;
+      min-width: 112px;
+      min-height: 54px;
+      padding: 8px;
+      text-align: center;
+      box-shadow: none;
+    }
+
+    .class-tabs .choice-copy {
+      display: none;
+    }
+
+    .class-tabs .choice-stat {
+      font-size: 14px;
+      color: var(--muted);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .class-tabs .choice-name {
+      justify-content: center;
+      margin-bottom: 2px;
+      color: var(--bone);
+    }
+
+    .class-tabs .choice.active .choice-name {
+      color: var(--gold);
+    }
+
+    .choice-crest {
+      width: 22px;
+      height: 22px;
+      display: inline-grid;
+      place-items: center;
+      margin: 0 auto 4px;
+      border: 2px solid var(--gold);
+      color: var(--gold);
+      background: rgba(0, 0, 0, .3);
+      font-size: 18px;
+      line-height: 1;
+    }
+
+    .selection-lists {
+      display: grid;
+      grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr);
+      gap: 10px;
+    }
+
+    .selection-lists .choice-list {
+      max-height: 182px;
+    }
+
+    .character-detail {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .detail-card {
+      min-height: 136px;
+      background: rgba(6, 5, 8, .5);
+    }
+
+    .detail-card h3 {
+      font-size: 21px;
+    }
+
+    .character-summary-panel {
+      display: grid;
+      gap: 10px;
+    }
+
+    .character-summary-panel .summary-actions {
+      position: sticky;
+      bottom: -11px;
+      z-index: 2;
+      padding-top: 8px;
+      background: linear-gradient(180deg, rgba(17, 13, 12, .12), rgba(17, 13, 12, .96) 32%);
+    }
+
+    .character-summary-panel #btn-char-save {
+      width: 100%;
+      min-height: 44px;
+      padding-top: 10px;
+      padding-bottom: 10px;
+    }
+
+    .character-portrait-card {
+      border: 3px solid var(--line);
+      min-height: 198px;
+      background:
+        linear-gradient(180deg, rgba(120, 176, 219, .34), rgba(23, 16, 14, .2)),
+        url("assets/title-screen/background.png") center / cover no-repeat;
+      display: grid;
+      place-items: end center;
+      padding: 12px;
+      box-shadow: inset 0 0 0 2px rgba(255, 207, 74, .18);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .character-portrait-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 32%, transparent 0 24%, rgba(0,0,0,.44) 78%);
+      pointer-events: none;
+    }
+
+    .pixel-avatar {
+      position: relative;
+      width: 96px;
+      height: 136px;
+      image-rendering: pixelated;
+      filter: drop-shadow(8px 10px 0 rgba(0,0,0,.55));
+    }
+
+    .pixel-avatar .head,
+    .pixel-avatar .body,
+    .pixel-avatar .cape,
+    .pixel-avatar .weapon,
+    .pixel-avatar .leg {
+      position: absolute;
+      background: var(--gold);
+      box-shadow: inset -4px -4px 0 rgba(0,0,0,.28);
+    }
+
+    .pixel-avatar .head {
+      width: 44px;
+      height: 46px;
+      left: 30px;
+      top: 16px;
+      background: #d7a068;
+      border: 4px solid #1a1210;
+    }
+
+    .pixel-avatar .hair {
+      position: absolute;
+      width: 54px;
+      height: 28px;
+      left: 24px;
+      top: 8px;
+      background: #3b241b;
+      border: 4px solid #1a1210;
+    }
+
+    .pixel-avatar .body {
+      width: 58px;
+      height: 70px;
+      left: 23px;
+      top: 60px;
+      background: linear-gradient(180deg, #9aa2a5, #3e4952);
+      border: 4px solid #1a1210;
+    }
+
+    .pixel-avatar .cape {
+      width: 74px;
+      height: 86px;
+      left: 14px;
+      top: 62px;
+      background: #8a1d1d;
+      clip-path: polygon(0 0, 100% 6%, 78% 100%, 18% 86%);
+    }
+
+    .pixel-avatar .weapon {
+      width: 12px;
+      height: 92px;
+      left: 69px;
+      top: 56px;
+      background: #e7edf2;
+      transform: rotate(-26deg);
+      transform-origin: 50% 100%;
+    }
+
+    .pixel-avatar .leg {
+      width: 20px;
+      height: 34px;
+      top: 112px;
+      background: #35261d;
+      border: 3px solid #1a1210;
+    }
+
+    .pixel-avatar .leg.left { left: 28px; }
+    .pixel-avatar .leg.right { right: 28px; }
+
+    .character-summary-panel .summary-kv,
+    .character-summary-panel .chaos-meter,
+    .character-summary-panel .muted.tiny {
+      display: none;
+    }
+
+    .summary-stat-list {
+      display: grid;
+      gap: 7px;
+      margin: 10px 0;
+    }
+
+    .summary-stat {
+      display: grid;
+      grid-template-columns: 74px 1fr;
+      gap: 8px;
+      align-items: center;
+      line-height: 1;
+    }
+
+    .summary-stat span {
+      color: var(--bone);
+      font-size: 18px;
+    }
+
+    .stat-track {
+      height: 12px;
+      border: 2px solid var(--line);
+      background: #0b0a0d;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.05);
+    }
+
+    .stat-fill {
+      height: 100%;
+      background: var(--gold);
+      box-shadow: inset -4px 0 0 rgba(0,0,0,.22);
+    }
+
+    .stat-fill.force { background: #e73f2f; }
+    .stat-fill.defense { background: #23a7e8; }
+    .stat-fill.agility { background: #4abf5d; }
+    .stat-fill.chaos { background: #9b5de5; }
+    .stat-fill.luck { background: #ffcf4a; }
+
+    .ability-icon-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      margin: 10px 0;
+    }
+
+    .ability-icon {
+      min-height: 42px;
+      border: 3px solid var(--line);
+      background: radial-gradient(circle at 35% 30%, rgba(255,207,74,.38), rgba(129, 38, 37, .72) 58%, rgba(0,0,0,.72));
+      display: grid;
+      place-items: center;
+      color: var(--gold);
+      font-size: 23px;
+      box-shadow: inset 0 0 0 2px rgba(255, 207, 74, .16);
+    }
+
+    .customization-grid {
+      display: grid;
+      gap: 6px;
+      margin: 10px 0;
+    }
+
+    .custom-row {
+      display: grid;
+      grid-template-columns: 64px minmax(0, 1fr) 42px;
+      align-items: center;
+      gap: 8px;
+      min-height: 28px;
+      border-bottom: 1px solid rgba(255,255,255,.09);
+      color: var(--muted);
+      font-size: 18px;
+    }
+
+    .custom-row strong {
+      color: var(--bone);
+      font-weight: 400;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
     .summary-kv {
       display: grid;
       grid-template-columns: 90px 1fr;
@@ -1065,6 +1599,71 @@
       }
       .title-hint-line {
         width: min(250px, 56vw);
+      }
+      .character-hud {
+        position: relative;
+        inset: auto;
+        z-index: 5;
+        padding: 10px;
+        display: grid;
+      }
+      .hud-plaque,
+      .hud-counters {
+        min-width: 0;
+        justify-content: center;
+      }
+      .character-side-nav {
+        position: relative;
+        top: auto;
+        left: auto;
+        width: auto;
+        z-index: 5;
+        padding: 0 10px;
+        grid-template-columns: repeat(3, 1fr);
+      }
+      .character-side-nav button {
+        min-height: 34px;
+        grid-template-columns: 18px 1fr;
+        font-size: 16px;
+        padding: 6px;
+      }
+      .nav-glyph {
+        width: 16px;
+        height: 16px;
+        font-size: 11px;
+      }
+      .character-menu-stage {
+        align-items: start;
+        padding: 12px 10px 28px;
+      }
+      .character-menu-frame {
+        width: 100%;
+        max-height: none;
+        overflow: visible;
+        box-shadow:
+          inset 0 0 0 3px rgba(255, 207, 74, .16),
+          0 0 0 2px rgba(255, 207, 74, .28),
+          7px 7px 0 rgba(0, 0, 0, .52);
+      }
+      .character-menu-frame .creator,
+      .character-menu-frame .character-shell,
+      .selection-lists,
+      .identity-strip,
+      .character-detail {
+        grid-template-columns: 1fr;
+      }
+      .character-menu-frame .character-steps {
+        grid-template-columns: 1fr;
+      }
+      .class-tabs {
+        overflow-x: auto;
+        padding-bottom: 4px;
+      }
+      .class-tabs .choice {
+        min-width: 110px;
+      }
+      .selection-lists .choice-list {
+        max-height: 260px;
       }
       .lobby-grid,
       .creator,
@@ -1304,22 +1903,37 @@
     </div>
   </div>
 
-  <div id="s-character" class="screen">
+  <div id="s-character" class="screen character-menu-screen">
     <svg id="forest-character" class="forest" viewBox="0 0 480 270" preserveAspectRatio="xMidYMid slice"><use href="#forestArt"></use></svg>
     <div id="flies-character" class="fireflies"></div>
-    <div class="stage top">
-      <div class="pixel-window wide">
-        <div class="lobby-head">
-          <div>
-            <h1 class="dialog-title">Criação de personagem</h1>
-            <p class="dialog-copy">Escolha sem inventar dado novo. O sistema já tem coisa suficiente para se arrepender.</p>
-          </div>
-          <button id="btn-char-back" class="btn-pixel ghost">Lobby</button>
+    <div class="character-scene-bg" aria-hidden="true"></div>
+    <div class="character-scene-vignette" aria-hidden="true"></div>
+    <div class="character-hud">
+      <div class="hud-plaque"><span class="hud-menu-button" aria-hidden="true"><span></span></span><span>KHAOS EFFECT</span></div>
+      <div class="hud-counters">
+        <span class="hud-counter"><b>R</b> 20</span>
+        <span class="hud-counter"><b>C</b> 13</span>
+        <span class="hud-counter"><b>S</b> 39</span>
+        <span class="hud-counter"><b>K</b> <span id="hud-khaos-char">0</span></span>
+      </div>
+    </div>
+    <nav class="character-side-nav" aria-label="Menu de personagem">
+      <button class="active" type="button"><span class="nav-glyph">P</span><span>Personagem</span></button>
+      <button type="button" onclick="document.getElementById('char-saved')?.scrollIntoView({block:'center'})"><span class="nav-glyph">B</span><span>Biblioteca</span></button>
+      <button type="button" onclick="document.getElementById('char-races')?.scrollIntoView({block:'center'})"><span class="nav-glyph">R</span><span>Raças</span></button>
+      <button type="button" onclick="document.getElementById('char-classes')?.scrollIntoView({block:'center'})"><span class="nav-glyph">C</span><span>Classes</span></button>
+      <button type="button" onclick="document.getElementById('char-special')?.scrollIntoView({block:'center'})"><span class="nav-glyph">K</span><span>Especial</span></button>
+      <button id="btn-char-back" type="button"><span class="nav-glyph">L</span><span>Lobby</span></button>
+    </nav>
+    <div class="character-menu-stage">
+      <div class="character-menu-frame">
+        <div class="character-frame-title">
+          <h1>Selecionar Personagem</h1>
+          <div id="char-steps" class="character-steps"></div>
         </div>
         <div class="character-board">
-          <div id="char-steps" class="character-steps"></div>
           <div class="creator character-shell">
-            <aside class="panel">
+            <aside class="panel character-library">
               <h2 class="panel-title">Biblioteca</h2>
               <div id="char-saved" class="saved-list"></div>
               <button id="btn-char-new" class="btn-pixel secondary" style="width:100%">Novo</button>
@@ -1336,14 +1950,15 @@
                 </div>
               </section>
 
-              <div class="selector-columns">
+              <section class="panel class-tabs-panel">
+                <h2 class="panel-title">Classe</h2>
+                <div id="char-classes" class="choice-list class-tabs"></div>
+              </section>
+
+              <div class="selection-lists">
                 <section class="panel">
                   <h2 class="panel-title">Raça</h2>
                   <div id="char-races" class="choice-list"></div>
-                </section>
-                <section class="panel">
-                  <h2 class="panel-title">Classe</h2>
-                  <div id="char-classes" class="choice-list"></div>
                 </section>
                 <section class="panel">
                   <h2 class="panel-title">Subclasse</h2>
@@ -1362,7 +1977,7 @@
               </section>
             </main>
 
-            <aside class="panel">
+            <aside class="panel character-summary-panel">
               <h2 class="panel-title">Resumo</h2>
               <div id="char-summary"></div>
               <div class="summary-actions">
@@ -2486,6 +3101,12 @@
         $("char-subclasses").innerHTML = (S.selected.cls.subs || []).map((sub) => this.choiceHtml("sub", sub, S.selected.sub?.id === sub.id)).join("");
       }
     },
+    choiceGlyph(type, item) {
+      const value = String(item?.nome || "?").trim();
+      if (type === "race") return value.slice(0, 1).toUpperCase();
+      if (type === "sub") return "S";
+      return value.slice(0, 1).toUpperCase();
+    },
     choiceHtml(type, item, active) {
       const handler = type === "race" ? "Character.selectRace" : type === "class" ? "Character.selectClass" : "Character.selectSub";
       const desc = item.descricao || item.desc || item.traco || item.efeito || "";
@@ -2494,6 +3115,7 @@
         item.mod_caos ? "<span class=\"badge gold\">KHAOS +" + esc(item.mod_caos) + "</span>" : ""
       ].join("");
       return "<button class=\"choice " + (active ? "active" : "") + "\" onclick=\"" + handler + "('" + item.id + "')\">" +
+        "<span class=\"choice-crest\">" + esc(this.choiceGlyph(type, item)) + "</span>" +
         "<div class=\"choice-name\"><strong>" + esc(item.nome) + "</strong></div>" +
         "<div class=\"choice-stat\">" + esc(type === "race" ? (item.traco_nome || "traço racial") : type === "class" ? (item.bloqueio || "classe") : "subclasse") + "</div>" +
         "<div class=\"choice-copy\">" + esc(short(desc, 130)) + "</div>" +
@@ -2574,7 +3196,39 @@
     renderSummary() {
       const chaos = this.chaos();
       const unlocked = this.selectedSpecialUnlocked();
+      const racePower = S.selected.race?.mod_caos || 0;
+      const classPower = S.selected.cls?.mod_caos || 0;
+      const subPower = S.selected.sub?.mod_caos || 0;
+      const bars = [
+        ["Força", "force", clamp(42 + classPower * 12 + subPower * 6, 20, 96)],
+        ["Defesa", "defense", clamp(38 + racePower * 10 + (S.selected.cls ? 8 : 0), 18, 92)],
+        ["Agilidade", "agility", clamp(36 + (S.selected.sub ? 18 : 0) - racePower * 2, 18, 88)],
+        ["KHAOS", "chaos", clamp(chaos * 12, 6, 100)],
+        ["Sorte", "luck", clamp(34 + this.macros().length * 7, 20, 86)]
+      ];
+      const macroIcons = this.macros().slice(0, 4);
+      const abilityIcons = macroIcons.map((macro) =>
+        "<div class=\"ability-icon\" title=\"" + esc(macro.name) + "\">" + esc(String(macro.name || "?").slice(0, 1).toUpperCase()) + "</div>"
+      ).join("") || "<div class=\"ability-icon\">?</div><div class=\"ability-icon\">?</div><div class=\"ability-icon\">?</div><div class=\"ability-icon\">?</div>";
+      const statHtml = bars.map(([label, cls, value]) =>
+        "<div class=\"summary-stat\"><span>" + esc(label) + "</span><div class=\"stat-track\"><div class=\"stat-fill " + cls + "\" style=\"width:" + value + "%\"></div></div></div>"
+      ).join("");
+      if ($("hud-khaos-char")) $("hud-khaos-char").textContent = String(chaos);
       $("char-summary").innerHTML =
+        "<div class=\"character-portrait-card\">" +
+        "<div class=\"pixel-avatar\" aria-hidden=\"true\"><span class=\"cape\"></span><span class=\"hair\"></span><span class=\"head\"></span><span class=\"body\"></span><span class=\"weapon\"></span><span class=\"leg left\"></span><span class=\"leg right\"></span></div>" +
+        "</div>" +
+        "<h3 class=\"panel-title\" style=\"margin-top:2px\">" + esc(($("char-name")?.value || "").trim() || "Personagem") + "</h3>" +
+        "<div class=\"summary-stat-list\">" + statHtml + "</div>" +
+        "<h3 class=\"panel-title\">Habilidades</h3>" +
+        "<div class=\"ability-icon-row\">" + abilityIcons + "</div>" +
+        "<h3 class=\"panel-title\">Personalização</h3>" +
+        "<div class=\"customization-grid\">" +
+        "<div class=\"custom-row\"><span>Raça</span><strong>" + esc(S.selected.race?.nome || "-") + "</strong><span>" + esc(S.selected.race?.raridade || "") + "</span></div>" +
+        "<div class=\"custom-row\"><span>Classe</span><strong>" + esc(S.selected.cls?.nome || "-") + "</strong><span>" + (S.selected.cls ? this.macros().length : 0) + "</span></div>" +
+        "<div class=\"custom-row\"><span>Sub</span><strong>" + esc(S.selected.sub?.nome || "-") + "</strong><span>" + esc(S.selected.sub ? "ok" : "-") + "</span></div>" +
+        "<div class=\"custom-row\"><span>Especial</span><strong>" + (S.selected.special ? esc(SPECIAL_CHARACTER.name) : unlocked ? "liberado" : "-") + "</strong><span>" + (S.selected.special ? "+4" : "") + "</span></div>" +
+        "</div>" +
         "<div class=\"summary-kv\">" +
         "<b>Raça</b><span>" + esc(S.selected.race?.nome || "-") + "</span>" +
         "<b>Classe</b><span>" + esc(S.selected.cls?.nome || "-") + "</span>" +
