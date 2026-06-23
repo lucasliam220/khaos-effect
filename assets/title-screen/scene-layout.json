@@ -12,7 +12,8 @@
   "layers": [
     {
       "id": "background",
-      "asset": "assets/title-screen/background.png",
+      "asset": "assets/title-screen/background.mp4",
+      "poster": "assets/title-screen/background.png",
       "position": [0.5, 0.5],
       "scale": 1,
       "depth": 0,

@@ -3,7 +3,8 @@
 ## Arquivos
 
 - `assets/title-screen/reference-final.png`: referencia visual. Nao e usada como tela cheia.
-- `assets/title-screen/background.png`: background da title screen.
+- `assets/title-screen/background.mp4`: fundo principal em loop da title screen e da criacao de sala.
+- `assets/title-screen/background.png`: poster/fallback estatico.
 - `assets/title-screen/khaos-effect-logo.png`: logo independente.
 - `assets/title-screen/animations.json`: contrato de animacoes e niveis de qualidade.
 - `assets/title-screen/scene-layout.json`: posicoes normalizadas e profundidade.
@@ -24,11 +25,8 @@
 
 ## Efeitos implementados
 
-- Background em `cover`, sem deformacao.
-- Canvas com `imageSmoothingEnabled = false`.
-- Particulas prealocadas: brasas, fumaca, motes azuis, motes roxos, agua e esporos.
-- Ataques dos dragoes em intervalos diferentes.
-- Meteoro ocasional.
+- Video em `cover`, sem deformacao, em loop e `muted`.
+- Canvas de efeitos mantido no codigo como fallback futuro, mas desativado quando o MP4 esta ativo.
 - Fade-out unico para `s-entry`.
 - Inputs: Enter, espaco, clique, toque, botao principal e Start de gamepad.
 - Suporte a `prefers-reduced-motion`.

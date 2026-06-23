@@ -29,6 +29,7 @@ if (forestUses !== 5) throw new Error(`forestArt use count should be 5, got ${fo
 const titleAssets = [
   "assets/title-screen/reference-final.png",
   "assets/title-screen/background.png",
+  "assets/title-screen/background.mp4",
   "assets/title-screen/khaos-effect-logo.png",
   "assets/title-screen/animations.json",
   "assets/title-screen/scene-layout.json"
@@ -41,6 +42,7 @@ for (const asset of titleAssets.filter((item) => item.endsWith(".json"))) {
 }
 
 if (!html.includes("assets/title-screen/background.png")) throw new Error("Title background is not referenced.");
+if (!html.includes("assets/title-screen/background.mp4")) throw new Error("Title video background is not referenced.");
 if (!html.includes("assets/title-screen/khaos-effect-logo.png")) throw new Error("Title logo is not referenced.");
 
 const dataMatch = html.match(/<script id="ke-data">\s*([\s\S]*?)\s*<\/script>/);

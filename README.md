@@ -8,7 +8,8 @@ Esta build e um HTML single-file com Supabase, lobby real, criacao de personagem
 
 A tela inicial usa os assets em `assets/title-screen/`:
 
-- `background.png` - arte-base da title screen.
+- `background.mp4` - fundo principal em loop da title screen e da criacao de sala.
+- `background.png` - poster/fallback estatico.
 - `khaos-effect-logo.png` - logo independente.
 - `animations.json` e `scene-layout.json` - contratos de animacao/posicionamento.
 - `reference-final.png` - referencia visual, nao usada como imagem de tela cheia.

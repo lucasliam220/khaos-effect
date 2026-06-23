@@ -35,12 +35,13 @@ Preview visual:
 
 - Assets fornecidos movidos para `assets/title-screen/`.
 - `reference-final.png` mantido somente como referencia visual; nao e usado como tela cheia.
-- `background.png` usado como arte-base da capa.
+- `background.mp4` usado como fundo principal em loop da capa.
+- `background.png` mantido como poster/fallback estatico.
 - `khaos-effect-logo.png` usado como logo independente acima da cena.
 - Criados `assets/title-screen/animations.json` e `assets/title-screen/scene-layout.json`.
 - Capa `s-cover` reconstruida como cena em camadas:
-  - background com comportamento `cover`;
-  - canvas de efeitos procedurais;
+  - video em loop com comportamento `cover`;
+  - canvas de efeitos procedurais desativado quando o MP4 esta ativo;
   - logo independente com flutuacao e pulso no cristal;
   - `PRESS START` funcional como elemento de UI.
 - Implementado controlador `TitleScene` com:
@@ -56,6 +57,7 @@ Preview visual:
   - fade-out unico para a cena real existente `s-entry`;
   - reducao de movimento via `prefers-reduced-motion`.
 - Fallback tecnico: como o `background.png` ja contem a maioria das criaturas, os corpos completos ainda nao foram recortados para sprite sheets reais. Os movimentos principais usam efeitos e overlays ancorados ate haver cutouts limpos.
+- Tela de criacao/entrada de sala `s-entry` ajustada para usar o mesmo `background.mp4` em loop.
 
 ## Atualizacao — pagina de personagens
 

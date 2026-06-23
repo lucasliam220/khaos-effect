@@ -79,6 +79,23 @@
       display: none;
     }
 
+    .loop-video-bg {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      image-rendering: pixelated;
+      background: #020713 url("assets/title-screen/background.png") center / cover no-repeat;
+      pointer-events: none;
+    }
+
+    .video-backed .forest,
+    .video-backed .fireflies {
+      opacity: 0;
+    }
+
     .forest {
       position: absolute;
       inset: 0;
@@ -142,6 +159,7 @@
     }
 
     .title-screen-bg {
+      display: none;
       z-index: 0;
       background:
         linear-gradient(180deg, rgba(1, 6, 18, .04), rgba(1, 6, 18, .26) 76%, rgba(1, 6, 18, .66)),
@@ -152,6 +170,7 @@
     }
 
     .title-canvas {
+      display: none;
       z-index: 2;
       width: 100%;
       height: 100%;
@@ -1801,9 +1820,12 @@
     <span id="conn-txt">offline</span>
   </div>
 
-  <div id="s-cover" class="screen active">
+  <div id="s-cover" class="screen active video-backed">
     <svg id="forest-cover" class="forest" viewBox="0 0 480 270" preserveAspectRatio="xMidYMid slice"><use href="#forestArt"></use></svg>
     <div id="flies-cover" class="fireflies"></div>
+    <video class="loop-video-bg" autoplay muted loop playsinline preload="auto" poster="assets/title-screen/background.png" aria-hidden="true">
+      <source src="assets/title-screen/background.mp4" type="video/mp4">
+    </video>
     <div class="title-screen-bg" aria-hidden="true"></div>
     <canvas id="title-canvas" class="title-canvas" aria-hidden="true"></canvas>
     <div class="title-vignette" aria-hidden="true"></div>
@@ -1819,9 +1841,12 @@
     </div>
   </div>
 
-  <div id="s-entry" class="screen">
+  <div id="s-entry" class="screen video-backed">
     <svg id="forest-entry" class="forest" viewBox="0 0 480 270" preserveAspectRatio="xMidYMid slice"><use href="#forestArt"></use></svg>
     <div id="flies-entry" class="fireflies"></div>
+    <video class="loop-video-bg" autoplay muted loop playsinline preload="auto" poster="assets/title-screen/background.png" aria-hidden="true">
+      <source src="assets/title-screen/background.mp4" type="video/mp4">
+    </video>
     <div class="stage">
       <div class="pixel-window slim">
         <h1 class="dialog-title">Quem ousa clicar em botões?</h1>
@@ -2174,6 +2199,7 @@ const RL={comum:'Comum',incomum:'Incomum',raro:'Raro',lendário:'Lendário'};
       document.querySelectorAll(".screen").forEach((screen) => screen.classList.remove("active"));
       $(id)?.classList.add("active");
       document.body.dataset.screen = id;
+      syncScreenMedia(id);
     },
     conn(state, text) {
       const dot = $("conn-dot");
@@ -2253,6 +2279,17 @@ const RL={comum:'Comum',incomum:'Incomum',raro:'Raro',lendário:'Lendário'};
     UI.err("");
   }
 
+  function syncScreenMedia(activeId) {
+    document.querySelectorAll(".loop-video-bg").forEach((video) => {
+      const screen = video.closest(".screen");
+      if (screen?.id === activeId) {
+        video.play?.().catch(() => {});
+      } else {
+        video.pause?.();
+      }
+    });
+  }
+
   function addFireflies(id) {
     const root = $(id);
     if (!root || root.children.length) return;
@@ -2273,6 +2310,7 @@ const RL={comum:'Comum',incomum:'Incomum',raro:'Raro',lendário:'Lendário'};
   const TitleScene = {
     refW: 1672,
     refH: 941,
+    effectsEnabled: false,
     canvas: null,
     ctx: null,
     dpr: 1,
@@ -2288,6 +2326,8 @@ const RL={comum:'Comum',incomum:'Incomum',raro:'Raro',lendário:'Lendário'};
     lastTime: 0,
     transitionTimer: 0,
     init() {
+      this.bindInput();
+      if (!this.effectsEnabled) return;
       this.canvas = $("title-canvas");
       if (!this.canvas) return;
       this.ctx = this.canvas.getContext("2d", { alpha: true });
@@ -2298,7 +2338,6 @@ const RL={comum:'Comum',incomum:'Incomum',raro:'Raro',lendário:'Lendário'};
       this.resize();
       this.seedParticles();
       this.seedAttacks();
-      this.bindInput();
       this.running = true;
       this.startTime = performance.now();
       this.lastTime = this.startTime;
@@ -3599,6 +3638,7 @@ const RL={comum:'Comum',incomum:'Incomum',raro:'Raro',lendário:'Lendário'};
     bind();
     renderReconnect();
     TitleScene.init();
+    syncScreenMedia("s-cover");
     ["flies-cover", "flies-entry", "flies-lobby", "flies-character", "flies-game"].forEach(addFireflies);
     UI.conn(sb ? "working" : "", sb ? "supabase" : "offline");
   }
