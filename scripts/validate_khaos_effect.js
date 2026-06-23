@@ -43,5 +43,6 @@ const manifest = vm.runInNewContext(
 const appMatch = html.match(/<script id="app-script">\s*([\s\S]*?)\s*<\/script>/);
 if (!appMatch) throw new Error("Missing app script.");
 new Function(appMatch[1]);
+new Function(dataMatch[1] + "\n" + appMatch[1]);
 
 console.log(JSON.stringify({ ok: true, manifest, forestSymbols, forestUses, requiredIds: requiredIds.length }, null, 2));

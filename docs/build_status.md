@@ -31,6 +31,17 @@ Preview visual:
 - Contrato inicial de `characters.data` com `schemaVersion`, `macros`, `stats`, `skills`, `inventory` e `notes`.
 - Mesa inicial com ficha ativa, barra de CAOS, D20, macros e historico via `khaos_history`.
 
+## Atualizacao — pagina de personagens
+
+- Tela `s-character` reestruturada em area de etapas, biblioteca, criacao, dossie e resumo.
+- Adicionados indicadores de progresso: Nome, Raca, Classe e Subclasse.
+- Adicionado painel de metadados com total de personagens, total de dados carregados e macros previstas.
+- Selecao de Raca/Classe/Subclasse reorganizada com grid responsivo.
+- Adicionado dossie com detalhes da raca, classe e subclasse selecionadas.
+- Corrigido fallback para `player_key` quando `crypto.randomUUID()` nao existe em `file://`.
+- Renomeado mapa local de raridade para evitar colisao runtime com constantes do `data.js`.
+- Validador reforcado para parsear dados canonicos e script da app juntos, capturando colisoes de identificadores.
+
 ## Validado localmente
 
 - Build gerado com dados canonicos intactos.

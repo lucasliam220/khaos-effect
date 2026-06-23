@@ -495,21 +495,77 @@
       margin: 0 0 8px;
     }
 
-    .creator {
+    .character-board {
       display: grid;
-      grid-template-columns: minmax(0, 1.4fr) minmax(280px, .8fr);
-      gap: 20px;
+      gap: 16px;
     }
 
+    .character-steps {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .step-chip {
+      min-height: 54px;
+      border: 4px solid var(--line);
+      background: rgba(16, 12, 30, .86);
+      box-shadow: 4px 4px 0 var(--line);
+      padding: 9px 10px;
+      color: var(--muted);
+      display: grid;
+      align-content: center;
+      gap: 3px;
+    }
+
+    .step-chip strong {
+      color: var(--bone);
+      font-weight: 400;
+      line-height: 1;
+    }
+
+    .step-chip.active {
+      border-color: var(--gold);
+      background: rgba(255, 207, 74, .15);
+    }
+
+    .step-chip.done {
+      border-color: var(--green);
+      background: rgba(106, 208, 120, .12);
+    }
+
+    .creator,
+    .character-shell {
+      display: grid;
+      grid-template-columns: minmax(210px, 260px) minmax(0, 1fr) minmax(280px, 340px);
+      gap: 16px;
+      align-items: start;
+    }
+
+    .character-main {
+      display: grid;
+      gap: 14px;
+      min-width: 0;
+    }
+
+    .identity-strip {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(220px, 320px);
+      gap: 14px;
+      align-items: end;
+    }
+
+    .selector-columns,
     .creator-grid {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
       gap: 14px;
     }
 
     .choice-list {
-      max-height: 430px;
+      max-height: 390px;
       overflow: auto;
+      overflow-x: hidden;
       display: grid;
       gap: 10px;
       padding-right: 4px;
@@ -522,6 +578,7 @@
       padding: 12px;
       text-align: left;
       box-shadow: 4px 4px 0 rgba(0, 0, 0, .55);
+      overflow: hidden;
     }
 
     .choice.active {
@@ -542,6 +599,13 @@
     .choice-copy {
       color: var(--bone);
       line-height: 1;
+      overflow-wrap: anywhere;
+    }
+
+    .choice-stat {
+      color: var(--muted);
+      font-size: 18px;
+      line-height: 1;
     }
 
     .choice-meta {
@@ -554,8 +618,8 @@
     .saved-list {
       display: grid;
       gap: 8px;
-      margin-bottom: 14px;
-      max-height: 160px;
+      margin-bottom: 12px;
+      max-height: 360px;
       overflow: auto;
     }
 
@@ -583,6 +647,56 @@
     .summary-kv b {
       color: var(--muted);
       font-weight: 400;
+    }
+
+    .character-detail {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 12px;
+    }
+
+    .detail-card {
+      border: 3px solid var(--line);
+      background: rgba(7, 5, 16, .44);
+      padding: 12px;
+      min-height: 170px;
+      overflow-wrap: anywhere;
+    }
+
+    .detail-card h3 {
+      margin: 0 0 8px;
+      color: var(--gold);
+      font-size: 25px;
+      line-height: 1;
+      font-weight: 400;
+    }
+
+    .detail-card p {
+      margin: 0 0 8px;
+      line-height: 1;
+    }
+
+    .trait-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .trait {
+      border-left: 4px solid var(--cyan);
+      padding-left: 10px;
+      color: var(--bone);
+      line-height: 1;
+    }
+
+    .trait.danger {
+      border-left-color: var(--danger);
+    }
+
+    .summary-actions {
+      display: grid;
+      gap: 10px;
+      margin-top: 12px;
     }
 
     .chaos-meter {
@@ -655,10 +769,15 @@
       .stage { align-items: flex-start; padding-top: 64px; }
       .lobby-grid,
       .creator,
+      .character-shell,
+      .identity-strip,
       .game-layout {
         grid-template-columns: 1fr;
       }
-      .creator-grid {
+      .creator-grid,
+      .selector-columns,
+      .character-detail,
+      .character-steps {
         grid-template-columns: 1fr;
       }
       .lobby-head,
@@ -886,40 +1005,56 @@
           </div>
           <button id="btn-char-back" class="btn-pixel ghost">Lobby</button>
         </div>
-        <div class="creator">
-          <div>
-            <div class="field">
-              <label for="char-name">Nome do personagem</label>
-              <input id="char-name" class="input-pixel" maxlength="48" placeholder="Sir Fulano de Tal, provisoriamente vivo">
-            </div>
-            <div class="creator-grid">
-              <div class="panel">
-                <h2 class="panel-title">Raça</h2>
-                <div id="char-races" class="choice-list"></div>
-              </div>
-              <div class="panel">
-                <h2 class="panel-title">Classe</h2>
-                <div id="char-classes" class="choice-list"></div>
-              </div>
-            </div>
-            <div class="panel" style="margin-top:14px">
-              <h2 class="panel-title">Subclasse</h2>
-              <div id="char-subclasses" class="choice-list"></div>
-            </div>
-          </div>
-          <aside>
-            <div class="panel">
-              <h2 class="panel-title">Personagens salvos</h2>
+        <div class="character-board">
+          <div id="char-steps" class="character-steps"></div>
+          <div class="creator character-shell">
+            <aside class="panel">
+              <h2 class="panel-title">Biblioteca</h2>
               <div id="char-saved" class="saved-list"></div>
               <button id="btn-char-new" class="btn-pixel secondary" style="width:100%">Novo</button>
-            </div>
-            <div class="panel" style="margin-top:14px">
+            </aside>
+
+            <main class="character-main">
+              <section class="panel">
+                <div class="identity-strip">
+                  <div class="field" style="margin-bottom:0">
+                    <label for="char-name">Nome do personagem</label>
+                    <input id="char-name" class="input-pixel" maxlength="48" placeholder="Sir Fulano de Tal, provisoriamente vivo">
+                  </div>
+                  <div id="char-current-meta"></div>
+                </div>
+              </section>
+
+              <div class="selector-columns">
+                <section class="panel">
+                  <h2 class="panel-title">Raça</h2>
+                  <div id="char-races" class="choice-list"></div>
+                </section>
+                <section class="panel">
+                  <h2 class="panel-title">Classe</h2>
+                  <div id="char-classes" class="choice-list"></div>
+                </section>
+                <section class="panel">
+                  <h2 class="panel-title">Subclasse</h2>
+                  <div id="char-subclasses" class="choice-list"></div>
+                </section>
+              </div>
+
+              <section class="panel">
+                <h2 class="panel-title">Dossiê</h2>
+                <div id="char-detail" class="character-detail"></div>
+              </section>
+            </main>
+
+            <aside class="panel">
               <h2 class="panel-title">Resumo</h2>
               <div id="char-summary"></div>
-              <button id="btn-char-save" class="btn-pixel" style="width:100%;margin-top:12px">Salvar e jogar</button>
-              <div id="char-err" class="error"></div>
-            </div>
-          </aside>
+              <div class="summary-actions">
+                <button id="btn-char-save" class="btn-pixel">Salvar e jogar</button>
+                <div id="char-err" class="error"></div>
+              </div>
+            </aside>
+          </div>
         </div>
       </div>
     </div>
@@ -991,12 +1126,17 @@ const RL={comum:'Comum',incomum:'Incomum',raro:'Raro',lendário:'Lendário'};
     return value.length > size ? value.slice(0, size - 1) + "..." : value;
   };
   const nowIso = () => new Date().toISOString();
+  const makeId = () => {
+    if (window.crypto?.randomUUID) return window.crypto.randomUUID();
+    const rnd = Math.random().toString(36).slice(2);
+    return Date.now().toString(36) + "_" + rnd;
+  };
   const online = (player) => {
     if (!player || !player.last_seen) return false;
     return Date.now() - new Date(player.last_seen).getTime() < 20000;
   };
 
-  const RL = {
+  const RARITY_LABEL = {
     comum: "comum",
     incomum: "incomum",
     raro: "raro",
@@ -1013,7 +1153,7 @@ const RL={comum:'Comum',incomum:'Incomum',raro:'Raro',lendário:'Lendário'};
     load() {
       let data = null;
       try { data = JSON.parse(localStorage.getItem(this.key) || "null"); } catch {}
-      this.pkey = data?.pkey || ("pk_" + crypto.randomUUID());
+      this.pkey = data?.pkey || ("pk_" + makeId());
       this.name = data?.name || "";
       this.save();
     },
@@ -1414,9 +1554,29 @@ const RL={comum:'Comum',incomum:'Incomum',raro:'Raro',lendário:'Lendário'};
       if (!error) S.characters = data || [];
     },
     render() {
+      this.renderSteps();
       this.renderSaved();
+      this.renderMeta();
       this.renderChoices();
+      this.renderDetail();
       this.renderSummary();
+    },
+    renderSteps() {
+      const el = $("char-steps");
+      if (!el) return;
+      const nameDone = !!$("char-name")?.value.trim();
+      const steps = [
+        { label: "Nome", value: nameDone ? "definido" : "pendente", done: nameDone, active: !nameDone },
+        { label: "Raça", value: S.selected.race?.nome || "pendente", done: !!S.selected.race, active: nameDone && !S.selected.race },
+        { label: "Classe", value: S.selected.cls?.nome || "pendente", done: !!S.selected.cls, active: !!S.selected.race && !S.selected.cls },
+        { label: "Subclasse", value: S.selected.sub?.nome || "pendente", done: this.subOk() && !!S.selected.cls, active: !!S.selected.cls && !this.subOk() }
+      ];
+      el.innerHTML = steps.map((step) =>
+        "<div class=\"step-chip " + (step.done ? "done" : step.active ? "active" : "") + "\">" +
+        "<span class=\"tiny\">" + esc(step.label) + "</span>" +
+        "<strong>" + esc(step.value) + "</strong>" +
+        "</div>"
+      ).join("");
     },
     renderSaved() {
       const el = $("char-saved");
@@ -1426,6 +1586,16 @@ const RL={comum:'Comum',incomum:'Incomum',raro:'Raro',lendário:'Lendário'};
         "<strong>" + esc(ch.name) + "</strong><br><span class=\"muted tiny\">" + esc(ch.race_name) + " / " + esc(ch.class_name) + "</span>" +
         "</button>"
       ).join("") || "<div class=\"empty\">Nenhum personagem salvo ainda.</div>";
+    },
+    renderMeta() {
+      const el = $("char-current-meta");
+      if (!el) return;
+      el.innerHTML =
+        "<div class=\"summary-kv\" style=\"margin-bottom:0\">" +
+        "<b>Biblioteca</b><span>" + S.characters.length + " salvo(s)</span>" +
+        "<b>Dados</b><span>" + KE.racas.length + " raças / " + KE.classes.length + " classes</span>" +
+        "<b>Macros</b><span>" + this.macros().length + " previstas</span>" +
+        "</div>";
     },
     renderChoices() {
       $("char-races").innerHTML = KE.racas.map((race) => this.choiceHtml("race", race, S.selected.race?.id === race.id)).join("");
@@ -1440,14 +1610,60 @@ const RL={comum:'Comum',incomum:'Incomum',raro:'Raro',lendário:'Lendário'};
       const handler = type === "race" ? "Character.selectRace" : type === "class" ? "Character.selectClass" : "Character.selectSub";
       const desc = item.descricao || item.desc || item.traco || item.efeito || "";
       const meta = [
-        item.raridade ? "<span class=\"badge\">" + esc(RL[item.raridade] || item.raridade) + "</span>" : "",
+        item.raridade ? "<span class=\"badge\">" + esc(RARITY_LABEL[item.raridade] || item.raridade) + "</span>" : "",
         item.mod_caos ? "<span class=\"badge gold\">CAOS +" + esc(item.mod_caos) + "</span>" : ""
       ].join("");
       return "<button class=\"choice " + (active ? "active" : "") + "\" onclick=\"" + handler + "('" + item.id + "')\">" +
         "<div class=\"choice-name\"><strong>" + esc(item.nome) + "</strong></div>" +
+        "<div class=\"choice-stat\">" + esc(type === "race" ? (item.traco_nome || "traço racial") : type === "class" ? (item.bloqueio || "classe") : "subclasse") + "</div>" +
         "<div class=\"choice-copy\">" + esc(short(desc, 130)) + "</div>" +
         "<div class=\"choice-meta\">" + meta + "</div>" +
         "</button>";
+    },
+    renderDetail() {
+      const el = $("char-detail");
+      if (!el) return;
+      const cards = [
+        this.detailCard("Raça", S.selected.race, this.raceTraits(S.selected.race)),
+        this.detailCard("Classe", S.selected.cls, this.classTraits(S.selected.cls)),
+        this.detailCard("Subclasse", S.selected.sub, this.subTraits(S.selected.sub))
+      ];
+      el.innerHTML = cards.join("");
+    },
+    detailCard(title, item, traits) {
+      if (!item) {
+        return "<div class=\"detail-card\"><h3>" + title + "</h3><p class=\"muted\">Aguardando seleção.</p></div>";
+      }
+      return "<div class=\"detail-card\">" +
+        "<h3>" + esc(item.nome) + "</h3>" +
+        "<p>" + esc(short(item.descricao || item.desc || "", 180)) + "</p>" +
+        "<div class=\"choice-meta\">" +
+        (item.raridade ? "<span class=\"badge\">" + esc(RARITY_LABEL[item.raridade] || item.raridade) + "</span>" : "") +
+        (item.mod_caos ? "<span class=\"badge gold\">CAOS +" + esc(item.mod_caos) + "</span>" : "") +
+        "</div>" +
+        "<div class=\"trait-list\">" + traits + "</div>" +
+        "</div>";
+    },
+    raceTraits(race) {
+      if (!race) return "";
+      return [
+        race.traco_nome ? "<div class=\"trait\"><strong>" + esc(race.traco_nome) + "</strong><br>" + esc(short(race.traco, 170)) + "</div>" : "",
+        race.limit_nome ? "<div class=\"trait danger\"><strong>" + esc(race.limit_nome) + "</strong><br>" + esc(short(race.limit, 170)) + "</div>" : ""
+      ].join("");
+    },
+    classTraits(cls) {
+      if (!cls) return "";
+      const habs = (cls.habs || []).slice(0, 2).map((hab) =>
+        "<div class=\"trait\"><strong>" + esc(hab.nome) + "</strong><br>" + esc(short(hab.efeito || "", 150)) + "</div>"
+      ).join("");
+      const block = cls.bloqueio ? "<div class=\"trait danger\"><strong>Bloqueio</strong><br>" + esc(cls.bloqueio) + "</div>" : "";
+      return block + habs;
+    },
+    subTraits(sub) {
+      if (!sub) return "";
+      return (sub.habs || []).slice(0, 3).map((hab) =>
+        "<div class=\"trait\"><strong>" + esc(hab.nome) + "</strong><br>" + esc(short(hab.efeito || hab.poder || "", 150)) + "</div>"
+      ).join("") || "<div class=\"trait\"><strong>Especialização</strong><br>" + esc(short(sub.descricao || "", 160)) + "</div>";
     },
     renderSummary() {
       const chaos = this.chaos();
@@ -1457,7 +1673,9 @@ const RL={comum:'Comum',incomum:'Incomum',raro:'Raro',lendário:'Lendário'};
         "<b>Classe</b><span>" + esc(S.selected.cls?.nome || "-") + "</span>" +
         "<b>Sub</b><span>" + esc(S.selected.sub?.nome || "-") + "</span>" +
         "<b>CAOS</b><span style=\"color:" + (chaos >= 6 ? "var(--danger)" : chaos >= 3 ? "var(--amber)" : "var(--green)") + "\">" + chaos + "</span>" +
+        "<b>Macros</b><span>" + this.macros().length + "</span>" +
         "</div>" +
+        "<div class=\"chaos-meter\"><div class=\"chaos-fill\" style=\"width:" + clamp(chaos * 12, 4, 100) + "%\"></div></div>" +
         "<p class=\"muted tiny\">XP 0 / nível 1 / HP 80. A ilusão de controle começa aqui.</p>";
       $("btn-char-save").disabled = !(S.selected.race && S.selected.cls && this.subOk());
     },
@@ -1718,6 +1936,10 @@ const RL={comum:'Comum',incomum:'Incomum',raro:'Raro',lendário:'Lendário'};
     $("btn-char-back").addEventListener("click", () => Lobby.enter());
     $("btn-char-new").addEventListener("click", () => Character.newChar());
     $("btn-char-save").addEventListener("click", () => Character.save());
+    $("char-name").addEventListener("input", () => {
+      Character.renderSteps();
+      Character.renderSummary();
+    });
     $("btn-game-character").addEventListener("click", () => Character.enter());
     $("btn-game-lobby").addEventListener("click", () => Lobby.enter());
     $("btn-roll-d20").addEventListener("click", () => Game.rollDie(20));
