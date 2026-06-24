@@ -54,10 +54,24 @@ Preview visual:
   - slimes/ogro com overlays ancorados ao background;
   - meteoro ocasional;
   - suporte a Enter, espaco, clique, toque e gamepad;
-  - fade-out unico para a cena real existente `s-entry`;
+  - fade-out unico para a tela de login `s-auth`;
   - reducao de movimento via `prefers-reduced-motion`.
 - Fallback tecnico: como o `background.png` ja contem a maioria das criaturas, os corpos completos ainda nao foram recortados para sprite sheets reais. Os movimentos principais usam efeitos e overlays ancorados ate haver cutouts limpos.
 - Tela de criacao/entrada de sala `s-entry` ajustada para usar o mesmo `background.mp4` em loop.
+
+## Atualizacao — login, cadastro e fundos em video
+
+- Adicionadas telas `s-auth` e `s-register`, abertas a partir do `PRESS START` com animacao de janela descendo de cima.
+- Login exige conta local cadastrada; conta inexistente recomenda cadastro e nao libera o menu de sala.
+- Cadastro inclui nome do usuario, e-mail, senha e confirmacao de senha.
+- Cadastro concluido autentica o jogador no preview e direciona para o menu de sala.
+- Menu de sala `s-entry` reduzido para uma janela com duas abas:
+  - `Criar sala`: nome da sala e senha opcional, mantendo geracao de codigo `KHAOS-XXXX`;
+  - `Entrar`: selecao de salas criadas pelo usuario e entrada manual por codigo.
+- Todas as telas depois da capa usam video em loop:
+  - `background.mp4` em login, cadastro, sala, lobby e mesa;
+  - `background-character.mp4` na tela de criacao/selecao de personagem.
+- Validador atualizado para exigir os IDs de auth/cadastro, selecao de sala criada e o novo asset de video da tela de personagem.
 
 ## Atualizacao — pagina de personagens
 
@@ -112,6 +126,8 @@ Preview visual:
 - `<symbol id="forestArt">` aparece 1x.
 - `<use href="#forestArt">` aparece 5x, uma vez por tela.
 - Captura headless da capa gerada com Edge.
+- Smoke test headless do fluxo capa -> login -> bloqueio sem conta -> cadastro -> menu de sala executado com Edge.
+- Conferido que todas as telas apos a capa possuem `.loop-video-bg` e que `s-character` usa `background-character.mp4`.
 
 ## Nao validado ainda
 

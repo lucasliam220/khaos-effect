@@ -75,6 +75,9 @@
     }
 
     body[data-screen="s-cover"] .conn,
+    body[data-screen="s-auth"] .conn,
+    body[data-screen="s-register"] .conn,
+    body[data-screen="s-entry"] .conn,
     body[data-screen="s-character"] .conn {
       display: none;
     }
@@ -357,6 +360,29 @@
       width: min(1180px, 100%);
     }
 
+    .drop-window {
+      animation: dropWindow 620ms steps(14, end) both;
+      transform-origin: top center;
+    }
+
+    @keyframes dropWindow {
+      0% {
+        opacity: 0;
+        transform: translateY(-105dvh) scale(.98);
+        filter: brightness(1.35);
+      }
+      72% {
+        opacity: 1;
+        transform: translateY(14px) scale(1);
+        filter: brightness(1.08);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        filter: brightness(1);
+      }
+    }
+
     .dialog-title {
       margin: 0 0 18px;
       font-family: "Press Start 2P", monospace;
@@ -412,6 +438,48 @@
 
     .btn-row.center {
       justify-content: center;
+    }
+
+    .auth-window {
+      width: min(560px, 100%);
+    }
+
+    .auth-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    .auth-actions .btn-pixel {
+      flex: 1 1 180px;
+    }
+
+    .account-note,
+    .room-user {
+      margin-bottom: 14px;
+      color: var(--muted);
+      line-height: 1.08;
+    }
+
+    .room-user b {
+      color: var(--gold);
+      font-weight: 400;
+    }
+
+    .hidden-field {
+      display: none;
+    }
+
+    .room-list-actions {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: end;
+    }
+
+    .room-list-actions .field {
+      margin-bottom: 0;
     }
 
     .btn-pixel {
@@ -891,6 +959,10 @@
       image-rendering: pixelated;
       filter: brightness(1.16) saturate(1.12);
       transform: scale(1.015);
+    }
+
+    .character-menu-screen.video-backed .character-scene-bg {
+      display: none;
     }
 
     .character-scene-vignette {
@@ -1701,6 +1773,9 @@
       .game-head {
         display: grid;
       }
+      .room-list-actions {
+        grid-template-columns: 1fr;
+      }
       .pixel-window {
         box-shadow:
           0 0 0 3px var(--gold),
@@ -1841,6 +1916,70 @@
     </div>
   </div>
 
+  <div id="s-auth" class="screen video-backed">
+    <video class="loop-video-bg" autoplay muted loop playsinline preload="auto" poster="assets/title-screen/background.png" aria-hidden="true">
+      <source src="assets/title-screen/background.mp4" type="video/mp4">
+    </video>
+    <div class="stage">
+      <div class="pixel-window slim auth-window drop-window">
+        <h1 class="dialog-title">Login</h1>
+        <p class="dialog-copy">Entre com uma conta cadastrada para criar ou acessar salas.</p>
+
+        <div class="field">
+          <label for="login-username">Nome do usuário</label>
+          <input id="login-username" class="input-pixel" maxlength="32" autocomplete="username" placeholder="Lucas">
+        </div>
+        <div class="field">
+          <label for="login-password">Senha</label>
+          <input id="login-password" class="input-pixel" maxlength="64" type="password" autocomplete="current-password">
+        </div>
+
+        <div class="auth-actions">
+          <button id="btn-login" class="btn-pixel" type="button">Entrar</button>
+          <button id="btn-register-open" class="btn-pixel secondary" type="button">Cadastrar</button>
+        </div>
+
+        <div id="auth-err" class="error" role="alert"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="s-register" class="screen video-backed">
+    <video class="loop-video-bg" autoplay muted loop playsinline preload="auto" poster="assets/title-screen/background.png" aria-hidden="true">
+      <source src="assets/title-screen/background.mp4" type="video/mp4">
+    </video>
+    <div class="stage">
+      <div class="pixel-window slim auth-window drop-window">
+        <h1 class="dialog-title">Cadastro</h1>
+        <p class="dialog-copy">Crie sua conta para liberar o menu de salas.</p>
+
+        <div class="field">
+          <label for="reg-username">Nome do usuário</label>
+          <input id="reg-username" class="input-pixel" maxlength="32" autocomplete="username" placeholder="Lucas">
+        </div>
+        <div class="field">
+          <label for="reg-email">E-mail</label>
+          <input id="reg-email" class="input-pixel" maxlength="80" type="email" autocomplete="email" placeholder="voce@exemplo.com">
+        </div>
+        <div class="field">
+          <label for="reg-password">Senha</label>
+          <input id="reg-password" class="input-pixel" maxlength="64" type="password" autocomplete="new-password">
+        </div>
+        <div class="field">
+          <label for="reg-confirm">Confirmação de senha</label>
+          <input id="reg-confirm" class="input-pixel" maxlength="64" type="password" autocomplete="new-password">
+        </div>
+
+        <div class="auth-actions">
+          <button id="btn-register-submit" class="btn-pixel" type="button">Criar conta</button>
+          <button id="btn-register-back" class="btn-pixel ghost" type="button">Voltar</button>
+        </div>
+
+        <div id="register-err" class="error" role="alert"></div>
+      </div>
+    </div>
+  </div>
+
   <div id="s-entry" class="screen video-backed">
     <svg id="forest-entry" class="forest" viewBox="0 0 480 270" preserveAspectRatio="xMidYMid slice"><use href="#forestArt"></use></svg>
     <div id="flies-entry" class="fireflies"></div>
@@ -1848,9 +1987,11 @@
       <source src="assets/title-screen/background.mp4" type="video/mp4">
     </video>
     <div class="stage">
-      <div class="pixel-window slim">
-        <h1 class="dialog-title">Quem ousa clicar em botões?</h1>
-        <p class="dialog-copy">Crie uma sala ou entre com um código. O caos será sincronizado de verdade; a responsabilidade continua opcional.</p>
+      <div class="pixel-window slim drop-window">
+        <input id="inp-name" class="hidden-field" type="hidden">
+        <div class="room-user">Conectado como <b id="entry-user-name">jogador</b></div>
+        <h1 class="dialog-title">Menu de sala</h1>
+        <p class="dialog-copy">Crie uma sala com código próprio ou entre em uma sala existente.</p>
 
         <div id="reconnect-card" class="notice">
           <div id="reconnect-info"></div>
@@ -1860,11 +2001,6 @@
           </div>
         </div>
 
-        <div class="field">
-          <label for="inp-name">Nome do jogador</label>
-          <input id="inp-name" class="input-pixel" maxlength="32" autocomplete="nickname" placeholder="Lucas, O Culpado">
-        </div>
-
         <div class="tabs">
           <button id="tab-create" class="tab active" type="button">Criar sala</button>
           <button id="tab-join" class="tab" type="button">Entrar</button>
@@ -1872,17 +2008,27 @@
 
         <div id="form-create" class="form-pane active">
           <div class="field">
-            <label for="inp-session">Nome da sessão</label>
+            <label for="inp-session">Nome da sala</label>
             <input id="inp-session" class="input-pixel" maxlength="48" placeholder="A Floresta Processa Alguém">
           </div>
           <div class="field">
-            <label for="inp-cpw">Senha do Mestre <span>(opcional)</span></label>
+            <label for="inp-cpw">Senha <span>(opcional)</span></label>
             <input id="inp-cpw" class="input-pixel" maxlength="32" type="password" placeholder="ninguém viu">
           </div>
-          <button id="btn-create" class="btn-pixel">Criar</button>
+          <button id="btn-create" class="btn-pixel">Criar sala e gerar código</button>
         </div>
 
         <div id="form-join" class="form-pane">
+          <div class="room-list-actions">
+            <div class="field">
+              <label for="owned-room-select">Salas criadas por você</label>
+              <select id="owned-room-select" class="select-pixel">
+                <option value="">Faça login para carregar suas salas</option>
+              </select>
+            </div>
+            <button id="btn-refresh-owned" class="btn-pixel ghost" type="button">Atualizar</button>
+          </div>
+          <button id="btn-join-owned" class="btn-pixel secondary" type="button">Entrar na sala selecionada</button>
           <div class="field">
             <label for="inp-code">Código</label>
             <input id="inp-code" class="input-pixel" maxlength="10" placeholder="KHAOS-XXXX" autocomplete="off">
@@ -1899,9 +2045,12 @@
     </div>
   </div>
 
-  <div id="s-lobby" class="screen">
+  <div id="s-lobby" class="screen video-backed">
     <svg id="forest-lobby" class="forest" viewBox="0 0 480 270" preserveAspectRatio="xMidYMid slice"><use href="#forestArt"></use></svg>
     <div id="flies-lobby" class="fireflies"></div>
+    <video class="loop-video-bg" autoplay muted loop playsinline preload="auto" poster="assets/title-screen/background.png" aria-hidden="true">
+      <source src="assets/title-screen/background.mp4" type="video/mp4">
+    </video>
     <div class="stage top">
       <div class="pixel-window wide">
         <div class="lobby-head">
@@ -1928,9 +2077,12 @@
     </div>
   </div>
 
-  <div id="s-character" class="screen character-menu-screen">
+  <div id="s-character" class="screen character-menu-screen video-backed">
     <svg id="forest-character" class="forest" viewBox="0 0 480 270" preserveAspectRatio="xMidYMid slice"><use href="#forestArt"></use></svg>
     <div id="flies-character" class="fireflies"></div>
+    <video class="loop-video-bg" autoplay muted loop playsinline preload="auto" poster="assets/title-screen/background.png" aria-hidden="true">
+      <source src="assets/title-screen/background-character.mp4" type="video/mp4">
+    </video>
     <div class="character-scene-bg" aria-hidden="true"></div>
     <div class="character-scene-vignette" aria-hidden="true"></div>
     <div class="character-hud">
@@ -2016,9 +2168,12 @@
     </div>
   </div>
 
-  <div id="s-game" class="screen">
+  <div id="s-game" class="screen video-backed">
     <svg id="forest-game" class="forest" viewBox="0 0 480 270" preserveAspectRatio="xMidYMid slice"><use href="#forestArt"></use></svg>
     <div id="flies-game" class="fireflies"></div>
+    <video class="loop-video-bg" autoplay muted loop playsinline preload="auto" poster="assets/title-screen/background.png" aria-hidden="true">
+      <source src="assets/title-screen/background.mp4" type="video/mp4">
+    </video>
     <div class="stage top">
       <div class="pixel-window wide">
         <div class="game-head">
@@ -2174,6 +2329,151 @@
     }
   };
 
+  const Auth = {
+    key: "ke_accounts_v1",
+    currentKey: "ke_current_account_v1",
+    read() {
+      try {
+        const data = JSON.parse(localStorage.getItem(this.key) || "[]");
+        return Array.isArray(data) ? data : [];
+      } catch {
+        return [];
+      }
+    },
+    write(accounts) {
+      try { localStorage.setItem(this.key, JSON.stringify(accounts)); } catch {}
+    },
+    norm(value) {
+      return String(value || "").trim().toLowerCase();
+    },
+    async hash(password) {
+      const text = "khaos-effect:" + String(password || "");
+      let hash = 2166136261;
+      for (const ch of text) {
+        hash ^= ch.codePointAt(0);
+        hash = Math.imul(hash, 16777619);
+      }
+      return "local-v1:" + (hash >>> 0).toString(16).padStart(8, "0");
+    },
+    findByLogin(login) {
+      const needle = this.norm(login);
+      return this.read().find((account) => this.norm(account.username) === needle || this.norm(account.email) === needle) || null;
+    },
+    current() {
+      let id = "";
+      try { id = localStorage.getItem(this.currentKey) || ""; } catch {}
+      return this.read().find((account) => account.id === id) || null;
+    },
+    saveCurrent(account) {
+      const accounts = this.read();
+      const idx = accounts.findIndex((item) => item.id === account.id);
+      if (idx >= 0) {
+        accounts[idx] = account;
+        this.write(accounts);
+      }
+      try { localStorage.setItem(this.currentKey, account.id); } catch {}
+      Identity.pkey = account.pkey || Identity.pkey || ("pk_" + makeId());
+      Identity.setName(account.username);
+      S.pkey = Identity.pkey;
+      S.name = Identity.name;
+      const nameInput = $("inp-name");
+      if (nameInput) nameInput.value = Identity.name;
+      this.syncEntryName();
+    },
+    syncEntryName() {
+      const label = $("entry-user-name");
+      if (label) label.textContent = S.name || Identity.name || "jogador";
+      const nameInput = $("inp-name");
+      if (nameInput) nameInput.value = S.name || Identity.name || "";
+    },
+    prepareLogin(message = "") {
+      const current = this.current();
+      const username = $("login-username");
+      const password = $("login-password");
+      if (username && !username.value) username.value = current?.username || Identity.name || "";
+      if (password) password.value = "";
+      UI.err(message, "auth-err");
+      UI.show("s-auth");
+    },
+    async login() {
+      UI.err("", "auth-err");
+      const login = $("login-username").value.trim();
+      const password = $("login-password").value;
+      if (!login || !password) {
+        UI.err("Informe nome do usuário e senha.", "auth-err");
+        return;
+      }
+      const account = this.findByLogin(login);
+      if (!account) {
+        UI.err("Conta não encontrada. Faça o cadastro antes de entrar.", "auth-err");
+        return;
+      }
+      const hash = await this.hash(password);
+      if (account.passwordHash !== hash) {
+        UI.err("Senha incorreta. A sala continua trancada.", "auth-err");
+        return;
+      }
+      if (!account.pkey) account.pkey = "pk_" + makeId();
+      this.saveCurrent(account);
+      renderReconnect();
+      UI.show("s-entry");
+    },
+    openRegister() {
+      const login = $("login-username")?.value.trim() || "";
+      $("reg-username").value = login;
+      $("reg-email").value = "";
+      $("reg-password").value = "";
+      $("reg-confirm").value = "";
+      UI.err("", "register-err");
+      UI.show("s-register");
+    },
+    async register() {
+      UI.err("", "register-err");
+      const username = $("reg-username").value.trim();
+      const email = $("reg-email").value.trim();
+      const password = $("reg-password").value;
+      const confirm = $("reg-confirm").value;
+      if (!username || !email || !password || !confirm) {
+        UI.err("Preencha todos os campos do cadastro.", "register-err");
+        return;
+      }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        UI.err("Use um e-mail válido.", "register-err");
+        return;
+      }
+      if (password.length < 4) {
+        UI.err("A senha precisa ter pelo menos 4 caracteres.", "register-err");
+        return;
+      }
+      if (password !== confirm) {
+        UI.err("As senhas não conferem.", "register-err");
+        return;
+      }
+      const accounts = this.read();
+      if (accounts.some((account) => this.norm(account.username) === this.norm(username))) {
+        UI.err("Esse nome de usuário já existe.", "register-err");
+        return;
+      }
+      if (accounts.some((account) => this.norm(account.email) === this.norm(email))) {
+        UI.err("Esse e-mail já está cadastrado.", "register-err");
+        return;
+      }
+      const account = {
+        id: "acct_" + makeId(),
+        pkey: "pk_" + makeId(),
+        username,
+        email,
+        passwordHash: await this.hash(password),
+        createdAt: nowIso()
+      };
+      accounts.push(account);
+      this.write(accounts);
+      this.saveCurrent(account);
+      renderReconnect();
+      UI.show("s-entry");
+    }
+  };
+
   const S = {
     pkey: "",
     name: "",
@@ -2182,6 +2482,7 @@
     player: null,
     players: [],
     roomCharacters: {},
+    ownedRooms: [],
     isMaster: false,
     characters: [],
     character: null,
@@ -2197,6 +2498,10 @@
       $(id)?.classList.add("active");
       document.body.dataset.screen = id;
       syncScreenMedia(id);
+      if (id === "s-entry") {
+        Auth.syncEntryName();
+        Rooms.refreshOwnedRooms();
+      }
     },
     conn(state, text) {
       const dot = $("conn-dot");
@@ -2250,13 +2555,15 @@
   }
 
   function requireName() {
-    const name = $("inp-name").value.trim();
+    const input = $("inp-name");
+    const name = (S.name || Identity.name || input?.value || "").trim();
     if (!name) {
-      UI.err("Digite seu nome antes de se tornar estatística.");
+      UI.err("Faça login ou cadastro antes de criar uma sala.");
       return "";
     }
     Identity.setName(name);
     S.name = name;
+    if (input) input.value = name;
     return name;
   }
 
@@ -2730,7 +3037,7 @@
       $("btn-press-start")?.setAttribute("disabled", "disabled");
       this.transitionTimer = window.setTimeout(() => {
         this.stop();
-        UI.show("s-entry");
+        Auth.prepareLogin();
       }, 620);
     },
     stop() {
@@ -2742,6 +3049,75 @@
   };
 
   const Rooms = {
+    renderOwnedRooms(status = "") {
+      const select = $("owned-room-select");
+      if (!select) return;
+      select.innerHTML = "";
+      if (status) {
+        const option = document.createElement("option");
+        option.value = "";
+        option.textContent = status;
+        select.appendChild(option);
+        return;
+      }
+      if (!S.ownedRooms.length) {
+        const option = document.createElement("option");
+        option.value = "";
+        option.textContent = "Nenhuma sala criada por este usuário";
+        select.appendChild(option);
+        return;
+      }
+      S.ownedRooms.forEach((room) => {
+        const option = document.createElement("option");
+        option.value = room.code;
+        option.textContent = (room.name || "Sala sem nome") + " - " + room.code;
+        select.appendChild(option);
+      });
+      this.applyOwnedRoomSelection();
+    },
+    async refreshOwnedRooms() {
+      if (!$("owned-room-select")) return;
+      if (!S.pkey) {
+        this.renderOwnedRooms("Faça login para carregar suas salas");
+        return;
+      }
+      if (!sb) {
+        S.ownedRooms = [];
+        this.renderOwnedRooms("Supabase offline");
+        return;
+      }
+      this.renderOwnedRooms("Carregando salas...");
+      const { data, error } = await sb
+        .from("khaos_rooms")
+        .select("id,code,name,pw,created_at,updated_at")
+        .eq("master_key", S.pkey)
+        .order("created_at", { ascending: false })
+        .limit(20);
+      if (error) {
+        S.ownedRooms = [];
+        this.renderOwnedRooms("Não foi possível carregar");
+        return;
+      }
+      S.ownedRooms = data || [];
+      this.renderOwnedRooms();
+    },
+    applyOwnedRoomSelection() {
+      const select = $("owned-room-select");
+      if (!select?.value) return;
+      const room = S.ownedRooms.find((item) => item.code === select.value);
+      if (!room) return;
+      $("inp-code").value = room.code;
+      $("inp-jpw").value = room.pw || "";
+    },
+    async joinOwned() {
+      this.applyOwnedRoomSelection();
+      const code = $("inp-code").value.trim();
+      if (!code) {
+        UI.err("Selecione uma sala criada por você ou digite um código.");
+        return;
+      }
+      await this.join();
+    },
     async create() {
       if (!requireClient()) return;
       const name = requireName();
@@ -2770,6 +3146,7 @@
       await this._addSelf(true);
       Identity.saveLast();
       Live.subscribe();
+      await this.refreshOwnedRooms();
       await Lobby.enter();
       UI.log("Sala criada. O botão existe; isso já é metade do perigo.");
     },
@@ -3601,10 +3978,16 @@
 
   function bind() {
     $("btn-press-start").addEventListener("click", () => TitleScene.go());
+    $("btn-login").addEventListener("click", () => Auth.login());
+    $("btn-register-open").addEventListener("click", () => Auth.openRegister());
+    $("btn-register-submit").addEventListener("click", () => Auth.register());
+    $("btn-register-back").addEventListener("click", () => Auth.prepareLogin());
     $("tab-create").addEventListener("click", () => setMode("create"));
     $("tab-join").addEventListener("click", () => setMode("join"));
     $("btn-create").addEventListener("click", () => Rooms.create());
     $("btn-join").addEventListener("click", () => Rooms.join());
+    $("btn-refresh-owned").addEventListener("click", () => Rooms.refreshOwnedRooms());
+    $("btn-join-owned").addEventListener("click", () => Rooms.joinOwned());
     $("btn-reconnect").addEventListener("click", () => Rooms.reconnect());
     $("btn-forget").addEventListener("click", () => { Identity.clearLast(); renderReconnect(); });
     $("btn-leave").addEventListener("click", () => Rooms.leave());
@@ -3624,13 +4007,25 @@
     $("inp-code").addEventListener("input", (event) => {
       event.target.value = event.target.value.toUpperCase().replace(/[^A-Z0-9-]/g, "");
     });
+    $("owned-room-select").addEventListener("change", () => Rooms.applyOwnedRoomSelection());
+    $("login-password").addEventListener("keydown", (event) => {
+      if (event.key === "Enter") Auth.login();
+    });
+    $("reg-confirm").addEventListener("keydown", (event) => {
+      if (event.key === "Enter") Auth.register();
+    });
   }
 
   function boot() {
     Identity.load();
+    const current = Auth.current();
+    if (current) {
+      Identity.pkey = current.pkey || Identity.pkey;
+      Identity.setName(current.username);
+    }
     S.pkey = Identity.pkey;
     S.name = Identity.name;
-    $("inp-name").value = Identity.name;
+    Auth.syncEntryName();
     initSupabase();
     bind();
     renderReconnect();

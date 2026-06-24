@@ -8,7 +8,8 @@ Esta build e um HTML single-file com Supabase, lobby real, criacao de personagem
 
 A tela inicial usa os assets em `assets/title-screen/`:
 
-- `background.mp4` - fundo principal em loop da title screen e da criacao de sala.
+- `background.mp4` - fundo principal em loop da title screen e das telas internas.
+- `background-character.mp4` - fundo em loop especifico da tela de criacao/selecao de personagem.
 - `background.png` - poster/fallback estatico.
 - `khaos-effect-logo.png` - logo independente.
 - `animations.json` e `scene-layout.json` - contratos de animacao/posicionamento.
@@ -52,6 +53,7 @@ Nao crie, renomeie ou remova racas/classes/subclasses/cartas sem instrucao expli
 - HTML/CSS/JS single-file
 - Supabase JS via UMD CDN
 - Supabase Realtime
+- Login/cadastro local para preview do fluxo de salas
 - Pixel art em SVG inline
 - Title screen em camadas HTML/CSS/canvas
 
